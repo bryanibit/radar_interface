@@ -32,4 +32,11 @@ void RadarMarkers::updateMarkers(
       marker_array_.markers[i].action=visualization_msgs::Marker::DELETE;
     }
   }
+  marker_pub_.publish(marker_array_);
+}
+
+void RadarMarkers::initializePublisher(ros::NodeHandle* node_handler){
+  nh_=node_handler;
+  marker_pub_ =
+      nh_->advertise<visualization_msgs::MarkerArray>("markers", 1000);
 }
