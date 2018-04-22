@@ -7,7 +7,7 @@ project(radar_interface)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs network_interface)
+find_package(catkin REQUIRED COMPONENTS genmsg message_generation roscpp std_msgs visualization_msgs socketcan_interface socketcan_bridge)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -43,11 +43,15 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs network_interface)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(FILES
+  AlignmentInfo.msg
+  VehicleInfo.msg
+  TCPFrame.msg
+  Vector2.msg
+  RadarTrackArray.msg
+  RadarTrack.msg
+  VehicleInfo.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -64,10 +68,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs network_interface)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -99,10 +102,16 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs network_interface)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES radar_interface
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS
+  message_runtime
+ INCLUDE_DIRS include
+ LIBRARIES ${PROJECT_NAME}
+ CATKIN_DEPENDS message_generation roscpp std_msgs
 #  DEPENDS system_lib
+)
+include_directories(
+  include ${catkin_INCLUDE_DIRS}
+  include
 )
 
 ###########
@@ -111,11 +120,11 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-  include ${catkin_INCLUDE_DIRS}
+# include_directories(
+#   include ${catkin_INCLUDE_DIRS}
 # include
 # ${catkin_INCLUDE_DIRS}
-)
+# )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -169,11 +178,11 @@ include_directories(
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  # FILES_MATCHING PATTERN "*.h"
+  # PATTERN ".svn" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
@@ -195,18 +204,99 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(topic_to_vehicle_sub
-  src/topic_to_vehicle_sub.cpp
+add_executable(topic_to_vehicle
+  src/topic_to_vehicle.cpp
 )
-add_dependencies(topic_to_vehicle_sub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(topic_to_vehicle_sub
+add_dependencies(topic_to_vehicle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(topic_to_vehicle
   ${catkin_LIBRARIES}
 )
 
-add_executable(esr_targets_eth_pub
-  src/esr_targets_eth_pub.cpp
+add_library(tcp_interface
+  include/radar_interface/tcp_interface.h
+  src/tcp_interface.cpp
 )
-add_dependencies(esr_targets_eth_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(esr_targets_eth_pub
+
+add_dependencies(tcp_interface ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tcp_interface
+  ${catkin_LIBRARIES}
+)
+
+add_library(radar_visualization
+  include/radar_interface/radar_visualization.h
+  src/radar_visualization.cpp
+)
+
+add_dependencies(radar_visualization ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(radar_visualization
+  ${catkin_LIBRARIES}
+)
+
+add_executable(esr_targets_eth
+  include/radar_interface/esr_targets_eth.h
+  src/esr_targets_eth_node.cpp
+)
+add_dependencies(esr_targets_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(esr_targets_eth
+  ${catkin_LIBRARIES}
+  tcp_interface
+  radar_visualization
+)
+
+add_executable(srr2_tracks_eth
+  include/radar_interface/srr2_tracks_eth.h
+  src/srr2_tracks_eth_node.cpp
+)
+add_dependencies(srr2_tracks_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(srr2_tracks_eth
+  ${catkin_LIBRARIES}
+  tcp_interface
+  radar_visualization
+)
+
+add_executable(vehicle_to_srr2_node
+  src/vehicle_to_srr2_node.cpp
+)
+add_dependencies(vehicle_to_srr2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vehicle_to_srr2_node
+  ${catkin_LIBRARIES}
+  vehicle_to_srr2
+)
+
+add_library(vehicle_to_srr2
+  include/radar_interface/vehicle_to_srr2.h
+  src/vehicle_to_srr2.cpp
+)
+add_dependencies(vehicle_to_srr2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vehicle_to_srr2
+  ${catkin_LIBRARIES}
+  can_tools
+)
+
+add_executable(vehicle_to_esr_node
+  src/vehicle_to_esr_node.cpp
+)
+add_dependencies(vehicle_to_esr_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vehicle_to_esr_node
+  ${catkin_LIBRARIES}
+  vehicle_to_esr
+)
+
+add_library(vehicle_to_esr
+  include/radar_interface/vehicle_to_esr.h
+  src/vehicle_to_esr.cpp
+)
+add_dependencies(vehicle_to_esr ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(vehicle_to_esr
+  ${catkin_LIBRARIES}
+  can_tools
+)
+
+add_library(can_tools
+  src/can_tools.cpp
+  include/radar_interface/can_tools.h
+)
+add_dependencies(can_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(can_tools
   ${catkin_LIBRARIES}
 )

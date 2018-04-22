@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh(""), nh_param("~");
 
   std::string can_device;
-  nh_param.param<std::string>("can_device", can_device, "can0");
+  nh_param.param<std::string>("can_device", can_device, "vcan0");
 
   boost::shared_ptr<can::ThreadedSocketCANInterface> driver = boost::make_shared<can::ThreadedSocketCANInterface> ();
 
@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
     ROS_INFO("Successfully connected to %s.", can_device.c_str());
   }
 
-  VehicleToSRR2 to_topic_bridge(&nh, &nh_param, driver);
+  VehicleToESR to_topic_bridge(&nh, &nh_param, driver);
   to_topic_bridge.setup();
 
-  ros::Timer timer = nh.createTimer(ros::Duration(1), &VehicleToSRR2::sendCanFrame, &to_topic_bridge);
+  ros::Timer timer = nh.createTimer(ros::Duration(1), &VehicleToESR::sendCanFrame, &to_topic_bridge);
 
   ros::spin();
 

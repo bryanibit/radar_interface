@@ -19,6 +19,7 @@ const int SRR2_PORT_ARM = 5555;
 const int SRR2_PORT_DSP = 55555;
 const std::string SRR2_IP_ADDR_L = "169.254.145.71";
 const std::string SRR2_IP_ADDR_R = "169.254.145.72";
+const int SRR2_ETH_TIMEOUT = 1000;
 
 const size_t ERROR_IN_COMMAND_LINE = 1;
 const size_t SUCCESS = 0;

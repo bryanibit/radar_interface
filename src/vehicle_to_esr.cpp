@@ -1,20 +1,19 @@
 #include "radar_interface/vehicle_to_esr.h"
 
-VehicleToSRR2::VehicleToSRR2(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                             boost::shared_ptr<can::DriverInterface> driver)
+VehicleToESR::VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
+                           boost::shared_ptr<can::DriverInterface> driver)
     : socketcan_bridge::TopicToSocketCAN(nh, nh_param, driver) {
   twist_topic_ = nh->subscribe<geometry_msgs::Twist>(
       "/vehicle_twist", 10,
-      boost::bind(&VehicleToSRR2::twistCallback, this, _1));
+      boost::bind(&VehicleToESR::twistCallback, this, _1));
   driver_interface_ = driver;
 
-  setFrameProperties(&frame_vel);
-  setFrameProperties(&frame_yaw_rate);
+  setFrameProperties(&frame_vehicle1_);
 }
 
-VehicleToSRR2::~VehicleToSRR2() {}
+VehicleToESR::~VehicleToESR() {}
 
-void VehicleToSRR2::setFrameProperties(can::Frame *frame) {
+void VehicleToESR::setFrameProperties(can::Frame *frame) {
   frame->is_extended = false;
   frame->is_rtr = false;
   frame->is_error = false;
@@ -24,32 +23,31 @@ void VehicleToSRR2::setFrameProperties(can::Frame *frame) {
   }
 }
 
-void VehicleToSRR2::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
+void VehicleToESR::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
   twist_ = *msg.get();
 }
 
-void VehicleToSRR2::sendCanFrame(const ros::TimerEvent &event) {
+void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
 
   bool always_true=true;
-  uint8_t speed_qf=3;
-  frame_vel.id = VEH_VEL.MSG_ID;
-  frame_yaw_rate.id = VEH_YAW_RATE.MSG_ID;
+  frame_vehicle1_.id = VEH_VEL.MSG_ID;
+  frame_vehicle1_.id = VEH_YAW_RATE.MSG_ID;
   float speed_abs = std::abs(twist_.linear.x);
-  
-  can_tools::setValueInFrame(&frame_vel, speed_abs, VEH_VEL);
-  can_tools::setValueInFrame(&frame_vel, always_true, VEH_VEL_UB);
-  can_tools::setValueInFrame(&frame_vel, speed_qf, VEH_VEL_QF);
-  can_tools::setValueInFrame(&frame_yaw_rate, twist_.angular.z, VEH_YAW_RATE);
+  bool speed_sign = std::signbit(twist_.linear.x);
 
-  bool res = driver_interface_->send(frame_vel);
+  can_tools::setValueInFrame(&frame_vehicle1_, speed_abs, VEH_VEL);
+  can_tools::setValueInFrame(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
+  can_tools::setValueInFrame(&frame_vehicle1_, twist_.angular.z, VEH_YAW_RATE);
+  can_tools::setValueInFrame(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
+
+  bool res = driver_interface_->send(frame_vehicle1_);
   if (!res) {
     ROS_ERROR("Failed to send message: %s.",
-              can::tostring(frame_vel, true).c_str());
+              can::tostring(frame_vehicle1_, true).c_str());
   }
   // res = driver_interface_->send(frame_yaw_rate);
   // if (!res) {
   //   ROS_ERROR("Failed to send message: %s.",
   //             can::tostring(frame_yaw_rate, true).c_str());
   // }
-  
 }
