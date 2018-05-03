@@ -1,6 +1,0 @@
-cansend can0 764#FF00000000000000
-cansend can0 764#F103020000000000
-
-candump can0,763:FFFFFFFF can0,765:FFFFFFFF
-
-

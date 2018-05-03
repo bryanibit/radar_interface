@@ -194,19 +194,4 @@ unsigned long TCPInterface::parse_value_old(const unsigned char *msg,
   return retVal;
 }
 
-unsigned long TCPInterface::parse_array(const unsigned char *msg,
-                                        unsigned long *array,
-                                        unsigned int offset,
-                                        unsigned int element_size,
-                                        unsigned int array_size) {
-  unsigned long retVal = 0;
-  for (int i = 0; i < array_size; i++) {
-    for (int j = element_size; j > 0; j--) {
-      retVal <<= 8;
-      // Need to use -1 because array is 0-based
-      // and offset is not.
-      retVal |= msg[(offset - 1) + j];
-    }
-    array[i] = retVal;
-  }
-}
+

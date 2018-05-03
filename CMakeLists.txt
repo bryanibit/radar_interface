@@ -44,14 +44,15 @@ find_package(catkin REQUIRED COMPONENTS genmsg message_generation roscpp std_msg
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
-  AlignmentInfo.msg
+  srr2/AlignmentInfoSRR2.msg
   VehicleInfo.msg
   TCPFrame.msg
   Vector2.msg
   RadarTrackArray.msg
   RadarTrack.msg
-  VehicleInfo.msg
-)
+  RadarTarget.msg
+  RadarTargetArray.msg
+  )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -204,14 +205,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(topic_to_vehicle
-  src/topic_to_vehicle.cpp
-)
-add_dependencies(topic_to_vehicle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(topic_to_vehicle
-  ${catkin_LIBRARIES}
-)
-
 add_library(tcp_interface
   include/radar_interface/tcp_interface.h
   src/tcp_interface.cpp
@@ -233,8 +226,8 @@ target_link_libraries(radar_visualization
 )
 
 add_executable(esr_targets_eth
-  include/radar_interface/esr_targets_eth.h
-  src/esr_targets_eth_node.cpp
+  include/radar_interface/delphi_esr/esr_targets_eth.h
+  src/delphi_esr/esr_targets_eth_node.cpp
 )
 add_dependencies(esr_targets_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(esr_targets_eth
@@ -243,9 +236,19 @@ target_link_libraries(esr_targets_eth
   radar_visualization
 )
 
+add_executable(esr_tracks_can
+  include/radar_interface/delphi_esr/esr_tracks_can.h
+  src/delphi_esr/esr_tracks_can_node.cpp
+)
+add_dependencies(esr_tracks_can ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(esr_tracks_can
+  ${catkin_LIBRARIES}
+  radar_visualization
+)
+
 add_executable(srr2_tracks_eth
-  include/radar_interface/srr2_tracks_eth.h
-  src/srr2_tracks_eth_node.cpp
+  include/radar_interface/delphi_srr2/srr2_tracks_eth.h
+  src/delphi_srr2/srr2_tracks_eth_node.cpp
 )
 add_dependencies(srr2_tracks_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(srr2_tracks_eth
@@ -255,7 +258,7 @@ target_link_libraries(srr2_tracks_eth
 )
 
 add_executable(vehicle_to_srr2_node
-  src/vehicle_to_srr2_node.cpp
+  src/delphi_srr2/vehicle_to_srr2_node.cpp
 )
 add_dependencies(vehicle_to_srr2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(vehicle_to_srr2_node
@@ -264,8 +267,8 @@ target_link_libraries(vehicle_to_srr2_node
 )
 
 add_library(vehicle_to_srr2
-  include/radar_interface/vehicle_to_srr2.h
-  src/vehicle_to_srr2.cpp
+  include/radar_interface/delphi_srr2/vehicle_to_srr2.h
+  src/delphi_srr2/vehicle_to_srr2.cpp
 )
 add_dependencies(vehicle_to_srr2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(vehicle_to_srr2
@@ -274,7 +277,7 @@ target_link_libraries(vehicle_to_srr2
 )
 
 add_executable(vehicle_to_esr_node
-  src/vehicle_to_esr_node.cpp
+  src/delphi_esr/vehicle_to_esr_node.cpp
 )
 add_dependencies(vehicle_to_esr_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(vehicle_to_esr_node
@@ -283,8 +286,8 @@ target_link_libraries(vehicle_to_esr_node
 )
 
 add_library(vehicle_to_esr
-  include/radar_interface/vehicle_to_esr.h
-  src/vehicle_to_esr.cpp
+  include/radar_interface/delphi_esr/vehicle_to_esr.h
+  src/delphi_esr/vehicle_to_esr.cpp
 )
 add_dependencies(vehicle_to_esr ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(vehicle_to_esr
