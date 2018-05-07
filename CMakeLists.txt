@@ -303,3 +303,12 @@ add_dependencies(can_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED
 target_link_libraries(can_tools
   ${catkin_LIBRARIES}
 )
+
+add_executable(imu_to_vehicle_node
+  include/radar_interface/vehicle/imu_to_vehicle_node.h
+  src/vehicle/imu_to_vehicle_node.cpp
+)
+add_dependencies(imu_to_vehicle_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(imu_to_vehicle_node
+  ${catkin_LIBRARIES}
+)
