@@ -39,13 +39,13 @@ int main(int argc, char *argv[]) {
   ros::Publisher vehicle_info_pub =
       n.advertise<radar_interface::VehicleInfo>("vehicle_info", 1000);
   ros::Publisher alignment_info_pub =
-      n.advertise<radar_interface::AlignmentInfo>("alignment_info", 1000);
+      n.advertise<radar_interface::AlignmentInfoSRR2>("alignment_info", 1000);
 
   radar_interface::TCPFrame tcp_frame_msg;
   radar_interface::RadarTrackArray tracks_msg;
   tracks_msg.tracks.resize(SRR2_MAX_TRCK_NUM);
   radar_interface::VehicleInfo vehicle_info_msg;
-  radar_interface::AlignmentInfo alignment_info_msg;
+  radar_interface::AlignmentInfoSRR2 alignment_info_msg;
 
   RadarMarkers radar_markers;
   radar_markers.marker_array_.markers.resize(SRR2_MAX_TRCK_NUM);

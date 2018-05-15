@@ -6,7 +6,7 @@
 #include "radar_interface/RadarTrackArray.h"
 #include "radar_interface/TCPFrame.h"
 #include "radar_interface/VehicleInfo.h"
-#include "radar_interface/AlignmentInfo.h"
+#include "radar_interface/AlignmentInfoSRR2.h"
 #include "radar_msgs/RadarTrack.h"
 #include "ros/ros.h"
 #include "std_msgs/String.h"

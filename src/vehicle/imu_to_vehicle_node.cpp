@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
   SubsriberPublisher sp;
   sp.sub =
-      sp.n.subscribe("/data/imu", 1000, &SubsriberPublisher::imuCallback, &sp);
+      sp.n.subscribe("/imu/data", 1000, &SubsriberPublisher::imuCallback, &sp);
   sp.pub = sp.n.advertise<geometry_msgs::Twist>("vehicle_twist", 1000);
 
   ros::spin();
