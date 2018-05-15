@@ -242,7 +242,6 @@ add_library(esr_tracks_can
 )
 
 add_executable(esr_tracks_can_node
-  include/radar_interface/delphi_esr/esr_tracks_can_node.h
   src/delphi_esr/esr_tracks_can_node.cpp
 )
 add_dependencies(esr_tracks_can_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -250,6 +249,21 @@ target_link_libraries(esr_tracks_can_node
   ${catkin_LIBRARIES}
   radar_visualization
   esr_tracks_can
+)
+
+add_library(srr2_targets_can
+  include/radar_interface/delphi_srr2/srr2_targets_can.h
+  src/delphi_srr2/srr2_targets_can.cpp
+)
+
+add_executable(srr2_targets_can_node
+  src/delphi_srr2/srr2_targets_can_node.cpp
+)
+add_dependencies(srr2_targets_can_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(srr2_targets_can_node
+  ${catkin_LIBRARIES}
+  radar_visualization
+  srr2_targets_can
 )
 
 add_executable(srr2_tracks_eth
