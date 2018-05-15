@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   radar_interface::AlignmentInfoSRR2 alignment_info_msg;
 
   RadarMarkers radar_markers;
-  radar_markers.marker_array_.markers.resize(SRR2_MAX_TRCK_NUM);
+  radar_markers.marker_num_=SRR2_MAX_TRCK_NUM;
   radar_markers.marker_namespace_ = name;
   radar_markers.initializePublisher(&n);
 

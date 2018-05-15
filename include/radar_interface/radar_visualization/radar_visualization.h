@@ -5,6 +5,7 @@
 #include "ros/ros.h"
 #include "std_msgs/ColorRGBA.h"
 #include "visualization_msgs/MarkerArray.h"
+// #include "string.h"
 
 class Colormap {
 public:

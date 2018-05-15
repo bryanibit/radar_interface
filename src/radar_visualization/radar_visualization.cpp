@@ -21,8 +21,18 @@ void RadarMarkers::setTrailLength(const int &length) {
 
 void RadarMarkers::updateTrackMarkers(
     const radar_interface::RadarTrackArray &track_array) {
+
+  std::string frame_string = "radar";
+  if (!track_array.header.frame_id.empty()) {
+    frame_string = track_array.header.frame_id;
+  }
+
   for (size_t i = 0; i < marker_num_; i++) {
+    marker_array_.markers[i].header.frame_id = frame_string;
+    // ROS_INFO("%s",marker_array_.markers[i].header.frame_id.c_str());
+
     if (track_array.tracks[i].status > 0) {
+      ROS_INFO("%d",track_array.tracks[i].id);
       marker_array_.markers[i].id = track_array.tracks[i].id;
       marker_array_.markers[i].pose.position.x = track_array.tracks[i].pos.x;
       marker_array_.markers[i].pose.position.y = track_array.tracks[i].pos.y;
@@ -59,6 +69,16 @@ void RadarMarkers::updateTargetMarkers(
 
 void RadarMarkers::initializePublisher(ros::NodeHandle *node_handler) {
   nh_ = node_handler;
+  marker_array_.markers.resize(marker_num_);
+  for (size_t i = 0; i < marker_num_; i++)
+  {
+    marker_array_.markers[i].scale.x=1;
+    marker_array_.markers[i].scale.y=1;
+    marker_array_.markers[i].scale.z=1;
+    marker_array_.markers[i].color.r=1;
+    marker_array_.markers[i].color.a=1;
+  }
+  
   marker_pub_ =
       nh_->advertise<visualization_msgs::MarkerArray>("markers", 1000);
 }
@@ -68,7 +88,7 @@ Colormap::Colormap() {}
 Colormap::~Colormap() {}
 
 void Colormap::setColormap(const float min_color_value,
-                               const float max_color_value) {
+                           const float max_color_value) {
   min_color_value_ = min_color_value;
   max_color_value_ = max_color_value;
   saturation_ = 1.0;

@@ -216,8 +216,8 @@ target_link_libraries(tcp_interface
 )
 
 add_library(radar_visualization
-  include/radar_interface/radar_visualization.h
-  src/radar_visualization.cpp
+  include/radar_interface/radar_visualization/radar_visualization.h
+  src/radar_visualization/radar_visualization.cpp
 )
 
 add_dependencies(radar_visualization ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -331,4 +331,13 @@ add_executable(imu_to_vehicle_node
 add_dependencies(imu_to_vehicle_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(imu_to_vehicle_node
   ${catkin_LIBRARIES}
+)
+
+add_executable(tracks_to_markers_node
+  src/radar_visualization/tracks_to_markers_node.cpp
+)
+add_dependencies(tracks_to_markers_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tracks_to_markers_node
+  ${catkin_LIBRARIES}
+  radar_visualization
 )
