@@ -236,15 +236,9 @@ target_link_libraries(esr_targets_eth
   radar_visualization
 )
 
-
-add_library(radar_visualization
-  include/radar_interface/radar_visualization.h
-  src/radar_visualization.cpp
-)
-
 add_library(esr_tracks_can
-  include/delphi_esr/esr_tracks_can.h
-  src/delphi_esr/radar_visualization.cpp
+  include/radar_interface/delphi_esr/esr_tracks_can.h
+  src/delphi_esr/esr_tracks_can.cpp
 )
 
 add_executable(esr_tracks_can_node
