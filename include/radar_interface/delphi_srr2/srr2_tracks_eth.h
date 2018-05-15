@@ -1,16 +1,15 @@
-#include "radar_interface/radar_visualization.h"
-#include "radar_interface/tcp_interface.h"
-#include <cstdio>
-#include <math.h>
+#include "radar_interface/AlignmentInfoSRR2.h"
 #include "radar_interface/RadarTrack.h"
 #include "radar_interface/RadarTrackArray.h"
 #include "radar_interface/TCPFrame.h"
 #include "radar_interface/VehicleInfo.h"
-#include "radar_interface/AlignmentInfoSRR2.h"
+#include "radar_interface/radar_visualization/radar_visualization.h"
+#include "radar_interface/tcp_interface.h"
 #include "ros/ros.h"
-#include "std_msgs/String.h"
 #include "std_msgs/Header.h"
-
+#include "std_msgs/String.h"
+#include <cstdio>
+#include <math.h>
 
 #include <sstream>
 
