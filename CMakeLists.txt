@@ -341,3 +341,12 @@ target_link_libraries(tracks_to_markers_node
   ${catkin_LIBRARIES}
   radar_visualization
 )
+
+add_executable(targets_to_markers_node
+  src/radar_visualization/targets_to_markers_node.cpp
+)
+add_dependencies(targets_to_markers_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(targets_to_markers_node
+  ${catkin_LIBRARIES}
+  radar_visualization
+)
