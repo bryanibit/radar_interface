@@ -7,7 +7,8 @@ namespace radar_interface {
 CANInterfaceESR::CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
                                  can::DriverInterfaceSharedPtr driver) {
   can_topic_ = nh->advertise<can_msgs::Frame>("can_raw", 10);
-  track_array_topic_ = nh->advertise<radar_interface::RadarTrackArray>("tracks", 10);
+  track_array_topic_ =
+      nh->advertise<radar_interface::RadarTrackArray>("tracks", 10);
   driver_ = driver;
 
   // register handler for frames and state changes.
@@ -37,26 +38,36 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
     }
   }
 
-  if (f.id >= ESR_TRACK_START && f.id <= ESR_TRACK_END){
-      parseTrack(f);
+  if (f.id >= ESR_TRACK_START && f.id <= ESR_TRACK_END) {
+    parseTrack(f);
   }
-  can_msgs::Frame msg;
+  can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
-  convertSocketCANToMessage(f, msg);
-  
-  msg.header.frame_id = radar_name_; 
+  convertSocketCANToMessage(f, raw_can_msg);
+
+  msg.header.frame_id = radar_name_;
   msg.header.stamp = ros::Time::now();
 
   can_topic_.publish(msg);
-
-
 };
 
-void CANInterfaceESR::parseTrack(const can::Frame &f){
-    int track_id;
-    float range,range_rate,azimuth,
+void CANInterfaceESR::parseTrack(const can::Frame &f) {
+  int track_id;
+  float range, range_rate, azimuth, bool to_publish;
 
-    track_id = f.id - ESR_TRACK_START;
+  to_publish = false;
+  track_id = f.id - ESR_TRACK_START;
+
+  if (track_id == 0) {
+    first_track_arrived_ = true;
+    track_count_ = 1;
+  } else {
+    track_count_ += 1;
+  }
+  if (track_count_ == ESR_MAX_TRACK_NUMBER) {
+    to_publish=true;
+  }
+  
 };
 
 void CANInterfaceESR::stateCallback(const can::State &s) {

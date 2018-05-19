@@ -5,6 +5,19 @@
 #define ESR_TRACK_START 0x500
 #define ESR_TRACK_END 0x53F
 
+// Message parse information
+
+can_tools::CANParseValueInfo ESR_ = {
+    .MSG_ID = 0x4F0,
+    .START_BYTE = 0,
+    .END_BYTE = 1,
+    .SHIFT = 5,
+    .SCALE = 0.0625,
+    .OFFSET = 0,
+    .MIN = 0,
+    .MAX = 127.9375,
+    .MASK = {0xff, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+
 #include "radar_interface/RadarTrackArray.h"
 #include "radar_interface/can_tools.h"
 #include "radar_interface/delphi_esr/esr_tracks_can.h"
@@ -34,7 +47,7 @@ private:
   RadarTrackArray tracks_msg_;
   bool first_track_arrived = false;
   bool last_track_arrived = false;
-  int track_count = 0;
+  int track_count_ = 0;
 };
 
 void convertSocketCANToMessage(const can::Frame &f, can_msgs::Frame &m) {
