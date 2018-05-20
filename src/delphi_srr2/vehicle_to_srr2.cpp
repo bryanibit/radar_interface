@@ -36,10 +36,10 @@ void VehicleToSRR2::sendCanFrame(const ros::TimerEvent &event) {
   frame_yaw_rate.id = VEH_YAW_RATE.MSG_ID;
   float speed_abs = std::abs(twist_.linear.x);
   
-  can_tools::setValueInFrame(&frame_vel, speed_abs, VEH_VEL);
-  can_tools::setValueInFrame(&frame_vel, always_true, VEH_VEL_UB);
-  can_tools::setValueInFrame(&frame_vel, speed_qf, VEH_VEL_QF);
-  can_tools::setValueInFrame(&frame_yaw_rate, twist_.angular.z, VEH_YAW_RATE);
+  can_tools::setValue(&frame_vel, speed_abs, VEH_VEL);
+  can_tools::setValue(&frame_vel, always_true, VEH_VEL_UB);
+  can_tools::setValue(&frame_vel, speed_qf, VEH_VEL_QF);
+  can_tools::setValue(&frame_yaw_rate, twist_.angular.z, VEH_YAW_RATE);
 
   bool res = driver_interface_->send(frame_vel);
   if (!res) {

@@ -35,10 +35,10 @@ void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
   float speed_abs = std::abs(twist_.linear.x);
   bool speed_sign = std::signbit(twist_.linear.x);
 
-  can_tools::setValueInFrame(&frame_vehicle1_, speed_abs, VEH_VEL);
-  can_tools::setValueInFrame(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
-  can_tools::setValueInFrame(&frame_vehicle1_, twist_.angular.z, VEH_YAW_RATE);
-  can_tools::setValueInFrame(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
+  can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
+  can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
+  can_tools::setValue(&frame_vehicle1_, twist_.angular.z, VEH_YAW_RATE);
+  can_tools::setValue(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
 
   bool res = driver_interface_->send(frame_vehicle1_);
 

@@ -24,6 +24,8 @@ private:
   void frameCallback(const can::Frame &f);
   void stateCallback(const can::State &s);
   void setRadarName(std::string &name){radar_name_ = name};
+  void aggregateTracks(const can::Frame &f);
+  void parseTrack(const can::Frame &f);
   ros::Publisher can_topic_;
   ros::Publisher track_array_topic_;
   can::DriverInterfaceSharedPtr driver_;
@@ -32,9 +34,10 @@ private:
   can::StateListenerConstSharedPtr state_listener_;
 
   RadarTrackArray tracks_msg_;
-  bool first_track_arrived = false;
-  bool last_track_arrived = false;
-  int track_count_ = 0;
+  bool first_track_arrived_;
+  bool last_track_arrived_;
+  int track_count_;
+  std::string radar_name_;
 };
 
 void convertSocketCANToMessage(const can::Frame &f, can_msgs::Frame &m) {

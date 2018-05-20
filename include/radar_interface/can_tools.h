@@ -19,7 +19,7 @@ struct CANParseValueInfo {
 };
 
 template <typename T>
-void setValueInFrame(can::Frame *frame, T &value,
+void setValue(can::Frame *frame, T &value,
                      const CANParseValueInfo &parse_info) {
   // assumes that the frame slot is 0-filled
   T value_clamped =
@@ -40,7 +40,7 @@ void setValueInFrame(can::Frame *frame, T &value,
 }
 
 template <typename T>
-void parseValueFromFrame(const can::Frame &frame, T *value,
+void parseValue(const can::Frame &frame, T *value,
                          const CANParseValueInfo &parse_info) {
   // assumes that the frame slot is 0-filled
 
@@ -49,23 +49,15 @@ void parseValueFromFrame(const can::Frame &frame, T *value,
   bool is_signed = std::is_signed<T>::value;
 
   for (size_t i = parse_info.START_BYTE; i <= parse_info.END_BYTE; i++) {
-    temp = (int_value >> (8 * (parse_info.END_BYTE - i))) & parse_info.MASK[i];
-    temp1 = frame->data[i] & (~parse_info.MASK[i]);
-    temp2 = frame->data[i];
-    temp3 = (!parse_info.MASK[i]);
-    frame->data[i] = frame->data[i] & (~parse_info.MASK[i]);
-    temp4 = frame->data[i];
-    temp5 = frame->data[i] | temp;
-    frame->data[i] = frame->data[i] | temp;
-  }
-  for (size_t i = parse_info.START_BYTE; i <= parse_info.END_BYTE; i++) {
     int_value = (int_value << 8) | (frame[i] & parse_info.MASK[i]);
   }
+  &int_value = &int_value >> parse_info.SHIFT;
+
   &value = int_value * parse_info.SCALE;
   if (is_signed && &value > parse_info.MAX) {
     &value = &value + 2 * parse_info.MIN;
   }
 }
-}
+} // namespace can_tools
 
 #endif
