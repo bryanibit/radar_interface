@@ -5,7 +5,7 @@
 
 namespace radar_interface {
 CANInterfaceESR::CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                                 can::DriverInterfaceSharedPtr driver,
+                                 boost::shared_ptr<can::DriverInterface> driver,
                                  std::string radar_name) {
   can_topic_ = nh->advertise<can_msgs::Frame>("can_raw", 10);
   track_array_topic_ =
@@ -31,7 +31,8 @@ CANInterfaceESR::CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
 
 void CANInterfaceESR::frameCallback(const can::Frame &f) {
   // ROS_DEBUG("Message came in: %s", can::tostring(f, true).c_str());
-  if (!f.isValid()) {
+  can::Frame frame = f; // copy the frame first, cannot call isValid() on const.
+  if (!frame.isValid()) {
     ROS_ERROR("Invalid frame from SocketCAN: id: %#04x, length: %d, "
               "is_extended: %d, is_error: %d, is_rtr: %d",
               f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
@@ -41,37 +42,46 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
       // can::tostring cannot be used for dlc > 8 frames. It causes an crash
       // due to usage of boost::array for the data array. The should always
       // work.
-      ROS_WARN("Received frame is error: %s", can::tostring(f, true).c_str());
+      ROS_WARN(
+          "Received frame is error"); //: %s", can::tostring(f, true).c_str());
     }
   }
 
   if (f.id >= ESR_TRACK_START && f.id <= ESR_TRACK_END) {
+    // std::cout << f.id;
     parseTrack(f);
-    agreggateTracks(f);
+
+    aggregateTracks(f);
   }
   can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
   convertSocketCANToMessage(f, raw_can_msg);
 
-  msg.header.frame_id = radar_name_;
-  msg.header.stamp = ros::Time::now();
+  raw_can_msg.header.frame_id = radar_name_;
+  raw_can_msg.header.stamp = ros::Time::now();
 
-  can_topic_.publish(msg);
+  can_topic_.publish(raw_can_msg);
 };
 
 void CANInterfaceESR::parseTrack(const can::Frame &f) {
-  int track_id, status, ;
+  int track_id, status;
   float range, range_rate, range_accel, azimuth, lat_rate, width;
 
   track_id = f.id - ESR_TRACK_START;
   can_tools::parseValue(f, &range, ESR_TRACK_RANGE);
   can_tools::parseValue(f, &range_rate, ESR_TRACK_RANGE_RATE);
-  can_tools::parseValue(f, &range_accel, ESR_TRACK_RANGE);
+  can_tools::parseValue(f, &range_accel, ESR_TRACK_RANGE_ACCEL);
   can_tools::parseValue(f, &azimuth, ESR_TRACK_ANGLE);
+
   can_tools::parseValue(f, &lat_rate, ESR_TRACK_LAT_RATE);
   can_tools::parseValue(f, &status, ESR_TRACK_STATUS);
   can_tools::parseValue(f, &width, ESR_TRACK_WIDTH);
-
+  // if (status>0 && (abs(range_rate)>1 || abs(lat_rate)>1 || abs(range_accel)>1)){
+  // ROS_INFO("%d,%d,%f,%f,%f,%f,%f", track_id,status, azimuth, range, range_rate, lat_rate,
+  //          range_accel);
+  //          }
+  azimuth = azimuth * DEG_TO_RAD;
+  tracks_msg_.tracks[track_id].id = track_id;
   tracks_msg_.tracks[track_id].pos.x = cos(azimuth) * range;
   tracks_msg_.tracks[track_id].pos.y = sin(azimuth) * range;
   tracks_msg_.tracks[track_id].vel.x =
@@ -80,6 +90,12 @@ void CANInterfaceESR::parseTrack(const can::Frame &f) {
       sin(azimuth) * range_rate + cos(azimuth) * lat_rate;
   tracks_msg_.tracks[track_id].acc.x = cos(azimuth) * range_accel;
   tracks_msg_.tracks[track_id].acc.y = sin(azimuth) * range_accel;
+  
+  tracks_msg_.tracks[track_id].status = status;
+  tracks_msg_.tracks[track_id].width = width;
+  if (width>0.0){
+    std::cout << width << std::endl;
+  }
 };
 
 void CANInterfaceESR::aggregateTracks(const can::Frame &f) {

@@ -26,23 +26,108 @@ void RadarMarkers::updateTrackMarkers(
   if (!track_array.header.frame_id.empty()) {
     frame_string = track_array.header.frame_id;
   }
-
-  for (size_t i = 0; i < marker_num_; i++) {
+  int marker_num = track_array.tracks.size();
+  for (size_t i = 0; i < marker_num; i++) {
     marker_array_.markers[i].header.frame_id = frame_string;
-    // ROS_INFO("%s",marker_array_.markers[i].header.frame_id.c_str());
+    speed_array_.markers[i].header.frame_id = frame_string;
+    accel_array_.markers[i].header.frame_id = frame_string;
+    marker_array_.markers[i].id = track_array.tracks[i].id;
+    speed_array_.markers[i].id = track_array.tracks[i].id;
+    accel_array_.markers[i].id = track_array.tracks[i].id;
+    // marker_array_.markers[i].lifetime=ros::Duration(0.1);
+    // speed_array_.markers[i].lifetime=ros::Duration(0.1);
+    // accel_array_.markers[i].lifetime=ros::Duration(0.1);
 
+    // ROS_INFO("%s",marker_array_.markers[i].header.frame_id.c_str());
     if (track_array.tracks[i].status > 0) {
-      ROS_INFO("%d",track_array.tracks[i].id);
-      marker_array_.markers[i].id = track_array.tracks[i].id;
+      // setting current position marker
+      float track_orientation =
+          atan2(track_array.tracks[i].pos.y, track_array.tracks[i].pos.x);
+      tf::Quaternion q_pos =
+          tf::createQuaternionFromRPY(0, 0, track_orientation);
+
       marker_array_.markers[i].pose.position.x = track_array.tracks[i].pos.x;
       marker_array_.markers[i].pose.position.y = track_array.tracks[i].pos.y;
+      marker_array_.markers[i].pose.orientation.x = q_pos.getX();
+      marker_array_.markers[i].pose.orientation.y = q_pos.getY();
+      marker_array_.markers[i].pose.orientation.z = q_pos.getZ();
+      marker_array_.markers[i].pose.orientation.w = q_pos.getW();
       marker_array_.markers[i].action = visualization_msgs::Marker::ADD;
-      marker_array_.markers[i].type = visualization_msgs::Marker::CUBE;
+      marker_array_.markers[i].type = marker_type_;
+      marker_array_.markers[i].scale.x = 1;
+      marker_array_.markers[i].scale.y =
+          std::max(track_array.tracks[i].width, 0.25);
+      marker_array_.markers[i].scale.z = 1;
+      marker_array_.markers[i].color =
+          getStatusColor(track_array.tracks[i].status);
+
+      // setting current speed arrow
+      float speed_length = sqrt(pow(track_array.tracks[i].vel.x, 2) +
+                                pow(track_array.tracks[i].vel.y, 2));
+
+      float speed_direction =
+          atan2(track_array.tracks[i].vel.y, track_array.tracks[i].vel.x);
+
+      tf::Quaternion q_speed =
+          tf::createQuaternionFromRPY(0, 0, speed_direction);
+      speed_array_.markers[i].pose.position =
+          marker_array_.markers[i].pose.position;
+      speed_array_.markers[i].pose.position.z = 0.5;
+      speed_array_.markers[i].pose.orientation.x = q_speed.getX();
+      speed_array_.markers[i].pose.orientation.y = q_speed.getY();
+      speed_array_.markers[i].pose.orientation.z = q_speed.getZ();
+      speed_array_.markers[i].pose.orientation.w = q_speed.getW();
+      speed_array_.markers[i].scale.x = speed_length;
+      speed_array_.markers[i].scale.y = 0.1;
+      speed_array_.markers[i].scale.z = 0.1;
+      speed_array_.markers[i].action = visualization_msgs::Marker::ADD;
+      speed_array_.markers[i].type = visualization_msgs::Marker::ARROW;
+      speed_array_.markers[i].color.r = 1;
+      speed_array_.markers[i].color.g = 0;
+      speed_array_.markers[i].color.b = 0;
+      speed_array_.markers[i].color.a = 1;
+      if (speed_array_.markers[i].scale.x == 0.0) {
+        speed_array_.markers[i].action = visualization_msgs::Marker::DELETE;
+      }
+
+      // setting current acceleration arrow
+      float accel_length = sqrt(pow(track_array.tracks[i].acc.x, 2) +
+                                pow(track_array.tracks[i].acc.y, 2));
+
+      float accel_direction =
+          atan2(track_array.tracks[i].acc.y, track_array.tracks[i].acc.x);
+
+      tf::Quaternion q_accel =
+          tf::createQuaternionFromRPY(0, 0, accel_direction);
+      accel_array_.markers[i].pose.position =
+          marker_array_.markers[i].pose.position;
+      accel_array_.markers[i].pose.position.z = 0.5;
+      accel_array_.markers[i].pose.orientation.x = q_accel.getX();
+      accel_array_.markers[i].pose.orientation.y = q_accel.getY();
+      accel_array_.markers[i].pose.orientation.z = q_accel.getZ();
+      accel_array_.markers[i].pose.orientation.w = q_accel.getW();
+      accel_array_.markers[i].scale.x = accel_length;
+      accel_array_.markers[i].scale.y = 0.1;
+      accel_array_.markers[i].scale.z = 0.1;
+      accel_array_.markers[i].action = visualization_msgs::Marker::ADD;
+      accel_array_.markers[i].type = visualization_msgs::Marker::ARROW;
+      accel_array_.markers[i].color.r = 0;
+      accel_array_.markers[i].color.g = 0;
+      accel_array_.markers[i].color.b = 1;
+      accel_array_.markers[i].color.a = 1;
+
+      if (accel_array_.markers[i].scale.x == 0.0) {
+        accel_array_.markers[i].action = visualization_msgs::Marker::DELETE;
+      }
     } else {
       marker_array_.markers[i].action = visualization_msgs::Marker::DELETE;
+      speed_array_.markers[i].action = visualization_msgs::Marker::DELETE;
+      accel_array_.markers[i].action = visualization_msgs::Marker::DELETE;
     }
   }
   marker_pub_.publish(marker_array_);
+  speed_pub_.publish(speed_array_);
+  accel_pub_.publish(accel_array_);
 }
 void RadarMarkers::updateTargetMarkers(
     const radar_interface::RadarTargetArray &target_array) {
@@ -70,17 +155,73 @@ void RadarMarkers::updateTargetMarkers(
 void RadarMarkers::initializePublisher(ros::NodeHandle *node_handler) {
   nh_ = node_handler;
   marker_array_.markers.resize(marker_num_);
-  for (size_t i = 0; i < marker_num_; i++)
-  {
-    marker_array_.markers[i].scale.x=1;
-    marker_array_.markers[i].scale.y=1;
-    marker_array_.markers[i].scale.z=1;
-    marker_array_.markers[i].color.r=1;
-    marker_array_.markers[i].color.a=1;
+  speed_array_.markers.resize(marker_num_);
+  accel_array_.markers.resize(marker_num_);
+  for (size_t i = 0; i < marker_num_; i++) {
+    marker_array_.markers[i].scale.x = 1;
+    marker_array_.markers[i].scale.y = 1;
+    marker_array_.markers[i].scale.z = 1;
+    marker_array_.markers[i].color.r = 1;
+    marker_array_.markers[i].color.a = 1;
   }
-  
+
   marker_pub_ =
-      nh_->advertise<visualization_msgs::MarkerArray>("markers", 1000);
+      nh_->advertise<visualization_msgs::MarkerArray>("markers_pos", 1000);
+  speed_pub_ =
+      nh_->advertise<visualization_msgs::MarkerArray>("markers_speed", 1000);
+  accel_pub_ =
+      nh_->advertise<visualization_msgs::MarkerArray>("markers_accel", 1000);
+}
+
+std_msgs::ColorRGBA RadarMarkers::getStatusColor(const int status) {
+
+  std_msgs::ColorRGBA color;
+
+  switch (status) {
+  case 1: // yellow - new target
+    color.r = 1;
+    color.g = 1;
+    color.b = 0;
+    color.a = 1;
+    break;
+  case 2: // orange - new updated target
+    color.r = 1;
+    color.g = 0.5;
+    color.b = 0;
+    color.a = 1;
+    break;
+  case 3: // green - updated
+    color.r = 0;
+    color.g = 1;
+    color.b = 0;
+    color.a = 1;
+    break;
+  case 4: // black -  coasted
+    color.r = 0;
+    color.g = 0;
+    color.b = 0;
+    color.a = 1;
+    break;
+  case 5: // blue - merged
+    color.r = 0;
+    color.g = 0;
+    color.b = 1;
+    color.a = 1;
+    break;
+  case 6: // red - invalid coasted
+    color.r = 1;
+    color.g = 0;
+    color.b = 0;
+    color.a = 1;
+    break;
+  case 7: // gray - new coasted
+    color.r = 0.3;
+    color.g = 0.3;
+    color.b = 0.3;
+    color.a = 1;
+    break;
+  }
+  return color;
 }
 
 Colormap::Colormap() {}

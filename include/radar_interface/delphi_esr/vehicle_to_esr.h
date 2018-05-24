@@ -7,6 +7,8 @@
 #include <socketcan_interface/interface.h>
 #include <socketcan_interface/socketcan.h>
 
+#define RAD_TO_DEG 57.295779513
+
 can_tools::CANParseValueInfo VEH_VEL = {
     .MSG_ID = 0x4F0,
     .START_BYTE = 0,

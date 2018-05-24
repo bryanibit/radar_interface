@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="esr_name" default="esr"/>
+<arg name="can_device" default="can0"/>
+
+<node pkg="radar_interface" type="esr_tracks_can_node" name="esr_tracks_can" ns="$(arg esr_name)" output="screen" >
+        <param name="can_device" value="$(arg can_device)" />
+        <param name="radar_name" value="$(arg esr_name)" />
+</node>
+<node pkg="radar_interface" type="tracks_to_markers_node" name="esr_tracks_to_markers" ns="$(arg esr_name)" output="screen">
+        <remap from="/radar_tracks" to="/$(arg esr_name)/tracks" />
+</node>
+
+<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>;
+
+</launch>

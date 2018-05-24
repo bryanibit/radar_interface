@@ -2,6 +2,8 @@
 #include "radar_interface/radar_visualization/radar_visualization.h"
 #include "ros/ros.h"
 #include "visualization_msgs/MarkerArray.h"
+#include "string.h"
+
 
 class SubsriberPublisher {
 public:
@@ -29,6 +31,9 @@ int main(int argc, char *argv[]) {
   SubsriberPublisher sp;
   sp.sub_ = sp.n_.subscribe("/radar_tracks", 1000,
                             &SubsriberPublisher::tracksCallback, &sp);
+
+// std::string ime =sp.sub_.getTopic();
+ROS_INFO("Subscribed to: %s" ,sp.sub_.getTopic().c_str());
 
   ros::spin();
 

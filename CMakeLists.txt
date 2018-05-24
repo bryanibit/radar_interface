@@ -48,8 +48,8 @@ add_message_files(FILES
   VehicleInfo.msg
   TCPFrame.msg
   Vector2.msg
-  RadarTrackArray.msg
   RadarTrack.msg
+  RadarTrackArray.msg
   RadarTarget.msg
   RadarTargetArray.msg
   )

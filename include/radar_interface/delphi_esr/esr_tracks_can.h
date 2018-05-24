@@ -3,37 +3,40 @@
 
 #include "radar_interface/RadarTrackArray.h"
 #include "radar_interface/can_tools.h"
-#include "radar_interface/delphi_esr/esr_tracks_can.h"
 #include <can_msgs/Frame.h>
 #include <ros/ros.h>
-#include <socketcan_interface/filter.h>
+// #include <socketcan_interface/filter.h>
+#include <socketcan_interface/interface.h>
 #include <socketcan_interface/socketcan.h>
+#include <socketcan_interface/string.h>
 #include <string.h>
 
 #define ESR_MAX_TRACK_NUMBER 64
 #define ESR_TRACK_START 0x500
 #define ESR_TRACK_END 0x53F
 
+#define DEG_TO_RAD 0.017453293
+
 namespace radar_interface {
 class CANInterfaceESR {
 public:
   CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                  can::DriverInterfaceSharedPtr driver);
+                  boost::shared_ptr<can::DriverInterface> driver,
+                  std::string radar_name);
 
 private:
   void frameCallback(const can::Frame &f);
   void stateCallback(const can::State &s);
-  void setRadarName(std::string &name){radar_name_ = name};
   void aggregateTracks(const can::Frame &f);
   void parseTrack(const can::Frame &f);
   ros::Publisher can_topic_;
   ros::Publisher track_array_topic_;
-  can::DriverInterfaceSharedPtr driver_;
+  boost::shared_ptr<can::DriverInterface> driver_;
 
-  can::FrameListenerConstSharedPtr frame_listener_;
-  can::StateListenerConstSharedPtr state_listener_;
+  can::CommInterface::FrameListener::Ptr frame_listener_;
+  can::StateInterface::StateListener::Ptr state_listener_;
 
-  RadarTrackArray tracks_msg_;
+  radar_interface::RadarTrackArray tracks_msg_;
   bool first_track_arrived_;
   bool last_track_arrived_;
   int track_count_;
@@ -169,10 +172,10 @@ can_tools::CANParseValueInfo ESR_TRACK_RANGE_RATE = {
     .START_BYTE = 6,
     .END_BYTE = 7,
     .SHIFT = 0,
-    .SCALE = 0.1,
+    .SCALE = 0.01,
     .OFFSET = 0,
-    .MIN = 0,
-    .MAX = 320,
+    .MIN = -81.92,
+    .MAX = 81.91,
     .MASK = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0xff}};
 
 }; // namespace radar_interface

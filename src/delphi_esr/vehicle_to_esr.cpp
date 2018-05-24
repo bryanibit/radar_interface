@@ -29,15 +29,16 @@ void VehicleToESR::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
 
 void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
 
-  bool always_true=true;
+  bool always_true = true;
   frame_vehicle1_.id = VEH_VEL.MSG_ID;
   frame_vehicle1_.id = VEH_YAW_RATE.MSG_ID;
   float speed_abs = std::abs(twist_.linear.x);
   bool speed_sign = std::signbit(twist_.linear.x);
+  float yaw_rate_deg = twist_.angular.z * RAD_TO_DEG;
 
   can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
   can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
-  can_tools::setValue(&frame_vehicle1_, twist_.angular.z, VEH_YAW_RATE);
+  can_tools::setValue(&frame_vehicle1_, yaw_rate_deg, VEH_YAW_RATE);
   can_tools::setValue(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
 
   bool res = driver_interface_->send(frame_vehicle1_);
@@ -45,10 +46,8 @@ void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
   if (!res) {
     ROS_ERROR("Failed to send message: %s.",
               can::tostring(frame_vehicle1_, true).c_str());
-  }
-  else {
-    ROS_INFO("Sent message: %s.",
-              can::tostring(frame_vehicle1_, true).c_str());
+  } else {
+    ROS_INFO("Sent message: %s.", can::tostring(frame_vehicle1_, true).c_str());
   }
   // res = driver_interface_->send(frame_yaw_rate);
   // if (!res) {

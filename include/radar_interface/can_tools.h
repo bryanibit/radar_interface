@@ -4,6 +4,8 @@
 #include "linux/can.h"
 #include <socketcan_interface/interface.h>
 #include <socketcan_interface/string.h>
+// #include <type_traits>
+#include <limits>
 
 namespace can_tools {
 struct CANParseValueInfo {
@@ -44,18 +46,18 @@ void parseValue(const can::Frame &frame, T *value,
                          const CANParseValueInfo &parse_info) {
   // assumes that the frame slot is 0-filled
 
-  int int_value = 0;
+      int int_value = 0;
   unsigned char temp, temp1, temp2, temp3, temp4, temp5;
-  bool is_signed = std::is_signed<T>::value;
+  bool is_signed = std::numeric_limits<T>::is_signed;
 
   for (size_t i = parse_info.START_BYTE; i <= parse_info.END_BYTE; i++) {
-    int_value = (int_value << 8) | (frame[i] & parse_info.MASK[i]);
+    int_value = (int_value << 8) | (frame.data[i] & parse_info.MASK[i]);
   }
-  &int_value = &int_value >> parse_info.SHIFT;
+  int_value = int_value >> parse_info.SHIFT;
 
-  &value = int_value * parse_info.SCALE;
-  if (is_signed && &value > parse_info.MAX) {
-    &value = &value + 2 * parse_info.MIN;
+  *value = int_value * parse_info.SCALE;
+  if (is_signed && *value > parse_info.MAX) {
+    *value = *value + 2 * parse_info.MIN;
   }
 }
 } // namespace can_tools
