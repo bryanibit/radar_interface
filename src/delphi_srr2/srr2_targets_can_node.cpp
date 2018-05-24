@@ -1,35 +1,44 @@
 #include "radar_interface/delphi_srr2/srr2_targets_can.h"
 #include <ros/ros.h>
-#include <socketcan_bridge/socketcan_to_topic.h>
-#include <socketcan_interface/threading.h>
 #include <socketcan_interface/string.h>
-#include <string>
+#include <socketcan_interface/string.h>
+#include <socketcan_interface/threading.h>
 
-
-
-int main(int argc, char *argv[])
-{
-  ros::init(argc, argv, "socketcan_to_topic_node");
+int main(int argc, char *argv[]) {
+  ros::init(argc, argv, "esr_can");
 
   ros::NodeHandle nh(""), nh_param("~");
 
-  std::string can_device;
+  std::string can_device, radar_name, left_right_both;
   nh_param.param<std::string>("can_device", can_device, "can0");
+  nh_param.param<std::string>("radar_name", radar_name, "srr2");
+  nh_param.param<std::string>("left_right_both", left_right_both, "both");
 
-  boost::shared_ptr<can::ThreadedSocketCANInterface> driver = boost::make_shared<can::ThreadedSocketCANInterface> ();
+  boost::shared_ptr<can::ThreadedSocketCANInterface> driver =
+      boost::make_shared<can::ThreadedSocketCANInterface>();
 
-  if (!driver->init(can_device, 0))  // initialize device at can_device, 0 for no loopback.
+  if (!driver->init(can_device,
+                    0)) // initialize device at can_device, 0 for no loopback.
   {
     ROS_FATAL("Failed to initialize can_device at %s", can_device.c_str());
     return 1;
-  }
-    else
-  {
+  } else {
     ROS_INFO("Successfully connected to %s.", can_device.c_str());
   }
-
-  socketcan_bridge::SocketCANToTopic to_topic_bridge(&nh, &nh_param, driver);
-  to_topic_bridge.setup();
+  
+  if (left_right_both == "left") {
+    radar_interface::CANInterfaceSRR2 srr2_can_interface(&nh, &nh_param, driver,
+                                                         radar_name, SRR2_LEFT);
+    ROS_INFO("Initialized driver: LEFT SRR2.");
+  } else if (left_right_both == "right") {
+    radar_interface::CANInterfaceSRR2 srr2_can_interface(
+        &nh, &nh_param, driver, radar_name, SRR2_RIGHT);
+    ROS_INFO("Initialized driver: RIGHT SRR2.");
+  } else {
+    radar_interface::CANInterfaceSRR2 srr2_can_interface(&nh, &nh_param, driver,
+                                                         radar_name, SRR2_BOTH);
+    ROS_INFO("Initialized driver: LEFT and RIGHT SRR2.");
+  }
 
   ros::spin();
 
