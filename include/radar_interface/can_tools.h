@@ -5,9 +5,54 @@
 #include <socketcan_interface/interface.h>
 #include <socketcan_interface/string.h>
 // #include <type_traits>
+#include <bitset>
 #include <limits>
 
 namespace can_tools {
+
+class CANParseInfo {
+private:
+  uint8_t start_bit_;
+  uint8_t length_;
+  float scale_;
+  float offset_;
+  float min_;
+  float max_;
+  int complement_offset_;
+  int complement_max_positive_;
+  unsigned char mask_[8];
+  unsigned char sign_bit_mask_;
+  uint8_t start_byte_;
+  uint8_t end_byte_;
+  uint8_t end_byte_shift_;
+  bool is_signed_;
+
+public:
+  CANParseInfo(uint8_t start_bit, uint8_t length, bool is_signed, float scale,
+               float offset, float min, float max);
+  // uin8_t getStartByte();
+  // uin8_t getEndByte();
+  template <typename T> void parseValue(const can::Frame &frame, T *value) {
+    // assumes that the frame slot is 0-filled
+
+    int int_value = 0;
+    unsigned char temp, temp1, temp2, temp3, temp4, temp5;
+
+    for (size_t i = start_byte_; i <= end_byte_; i++) {
+      int_value = (int_value << 8) | (frame.data[i] & mask_[i]);
+    }
+    int_value = int_value >> end_byte_shift_;
+
+    if (is_signed_ && (frame.data[start_byte_] & sign_bit_mask_) &&
+        int_value > complement_max_positive_) {
+      *value = *value + complement_offset_;
+    }
+
+    *value = int_value * scale_;
+    *value = *value + offset_;
+  }
+};
+
 struct CANParseValueInfo {
   unsigned short int MSG_ID;
   unsigned short int START_BYTE;
@@ -18,11 +63,12 @@ struct CANParseValueInfo {
   float MIN;
   float MAX;
   unsigned char MASK[8];
+  unsigned char SIGN_BIT_MASK;
 };
 
 template <typename T>
 void setValue(can::Frame *frame, T &value,
-                     const CANParseValueInfo &parse_info) {
+              const CANParseValueInfo &parse_info) {
   // assumes that the frame slot is 0-filled
   T value_clamped =
       std::max(T(parse_info.MIN), std::min(value, T(parse_info.MAX)));
@@ -43,10 +89,10 @@ void setValue(can::Frame *frame, T &value,
 
 template <typename T>
 void parseValue(const can::Frame &frame, T *value,
-                         const CANParseValueInfo &parse_info) {
+                const CANParseValueInfo &parse_info) {
   // assumes that the frame slot is 0-filled
 
-      int int_value = 0;
+  int int_value = 0;
   unsigned char temp, temp1, temp2, temp3, temp4, temp5;
   bool is_signed = std::numeric_limits<T>::is_signed;
 
@@ -60,6 +106,7 @@ void parseValue(const can::Frame &frame, T *value,
     *value = *value + 2 * parse_info.MIN;
   }
 }
+
 } // namespace can_tools
 
 #endif
