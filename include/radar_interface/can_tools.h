@@ -26,6 +26,7 @@ private:
   uint8_t end_byte_;
   uint8_t end_byte_shift_;
   bool is_signed_;
+  int dummy;
 
 public:
   CANParseInfo(uint8_t start_bit, uint8_t length, bool is_signed, float scale,
@@ -34,22 +35,28 @@ public:
   // uin8_t getEndByte();
   template <typename T> void parseValue(const can::Frame &frame, T *value) {
     // assumes that the frame slot is 0-filled
-
+    // std::cout << "1   JURAAAA" << std::endl;
     int int_value = 0;
     unsigned char temp, temp1, temp2, temp3, temp4, temp5;
 
     for (size_t i = start_byte_; i <= end_byte_; i++) {
       int_value = (int_value << 8) | (frame.data[i] & mask_[i]);
+      // std::cout << std::bitset<8>(mask_[i]) << ","<<i<< "," << int_value<< ","<< std::endl;
     }
     int_value = int_value >> end_byte_shift_;
 
     if (is_signed_ && (frame.data[start_byte_] & sign_bit_mask_) &&
         int_value > complement_max_positive_) {
-      *value = *value + complement_offset_;
+      int_value = int_value + complement_offset_;
     }
 
+    // std::cout << int_value<< ","<< *value << std::endl;
     *value = int_value * scale_;
     *value = *value + offset_;
+    // std::cout << int_value<< ","<< *value << std::endl;
+    // if (length_==10){
+    //   std::cout << "this line " <<  std::endl ;
+    // }
   }
 };
 
