@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   VehicleToESR to_topic_bridge(&nh, &nh_param, driver);
   to_topic_bridge.setup();
 
-  ros::Timer timer = nh.createTimer(ros::Duration(1), &VehicleToESR::sendCanFrame, &to_topic_bridge);
+  ros::Timer timer = nh.createTimer(ros::Duration(0.03), &VehicleToESR::sendCanFrame, &to_topic_bridge);
 
   ros::spin();
 

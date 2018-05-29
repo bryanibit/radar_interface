@@ -34,7 +34,7 @@ void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
   frame_vehicle1_.id = VEH_YAW_RATE.MSG_ID;
   float speed_abs = std::abs(twist_.linear.x);
   bool speed_sign = std::signbit(twist_.linear.x);
-  float yaw_rate_deg = twist_.angular.z * RAD_TO_DEG;
+  float yaw_rate_deg = - twist_.angular.z * RAD_TO_DEG;
 
   can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
   can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);

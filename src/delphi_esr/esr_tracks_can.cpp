@@ -68,16 +68,20 @@ void CANInterfaceESR::parseTrack(const can::Frame &f) {
   float range, range_rate, range_accel, azimuth, lat_rate, width;
 
   track_id = f.id - ESR_TRACK_START;
-  can_tools::parseValue(f, &range, ESR_TRACK_RANGE);
-  can_tools::parseValue(f, &range_rate, ESR_TRACK_RANGE_RATE);
-  can_tools::parseValue(f, &range_accel, ESR_TRACK_RANGE_ACCEL);
-  can_tools::parseValue(f, &azimuth, ESR_TRACK_ANGLE);
+  ESR_TRACK_RANGE.parseValue(f, &range);
+  ESR_TRACK_RANGE_RATE.parseValue(f, &range_rate);
+  ESR_TRACK_RANGE_ACCEL.parseValue(f, &range_accel);
+  ESR_TRACK_ANGLE.parseValue(f, &azimuth);
+  // std::cout << azimuth << std::endl;
 
-  can_tools::parseValue(f, &lat_rate, ESR_TRACK_LAT_RATE);
-  can_tools::parseValue(f, &status, ESR_TRACK_STATUS);
-  can_tools::parseValue(f, &width, ESR_TRACK_WIDTH);
-  // if (status>0 && (abs(range_rate)>1 || abs(lat_rate)>1 || abs(range_accel)>1)){
-  // ROS_INFO("%d,%d,%f,%f,%f,%f,%f", track_id,status, azimuth, range, range_rate, lat_rate,
+  ESR_TRACK_LAT_RATE.parseValue(f, &lat_rate);
+  ESR_TRACK_STATUS.parseValue(f, &status);
+  ESR_TRACK_WIDTH.parseValue(f, &width);
+
+  // if (status>0 && (abs(range_rate)>1 || abs(lat_rate)>1 ||
+  // abs(range_accel)>1)){
+  // ROS_INFO("%d,%d,%f,%f,%f,%f,%f", track_id,status, azimuth, range,
+  // range_rate, lat_rate,
   //          range_accel);
   //          }
   azimuth = azimuth * DEG_TO_RAD;
@@ -90,10 +94,10 @@ void CANInterfaceESR::parseTrack(const can::Frame &f) {
       sin(azimuth) * range_rate + cos(azimuth) * lat_rate;
   tracks_msg_.tracks[track_id].acc.x = cos(azimuth) * range_accel;
   tracks_msg_.tracks[track_id].acc.y = sin(azimuth) * range_accel;
-  
+
   tracks_msg_.tracks[track_id].status = status;
   tracks_msg_.tracks[track_id].width = width;
-  if (width>0.0){
+  if (width > 0.0) {
     std::cout << width << std::endl;
   }
 };

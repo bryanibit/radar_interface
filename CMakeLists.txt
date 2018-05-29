@@ -205,6 +205,15 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+add_library(can_tools
+  src/can_tools.cpp
+  include/radar_interface/can_tools.h
+)
+add_dependencies(can_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(can_tools
+  ${catkin_LIBRARIES}
+)
+
 add_library(tcp_interface
   include/radar_interface/tcp_interface.h
   src/tcp_interface.cpp
@@ -249,6 +258,7 @@ target_link_libraries(esr_tracks_can_node
   ${catkin_LIBRARIES}
   radar_visualization
   esr_tracks_can
+  can_tools
 )
 
 add_library(srr2_targets_can
@@ -315,14 +325,7 @@ target_link_libraries(vehicle_to_esr
   can_tools
 )
 
-add_library(can_tools
-  src/can_tools.cpp
-  include/radar_interface/can_tools.h
-)
-add_dependencies(can_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(can_tools
-  ${catkin_LIBRARIES}
-)
+
 
 add_executable(imu_to_vehicle_node
   include/radar_interface/vehicle/imu_to_vehicle_node.h

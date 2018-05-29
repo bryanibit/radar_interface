@@ -1,8 +1,8 @@
 #include "radar_interface/delphi_esr/esr_tracks_can.h"
-#include <socketcan_interface/threading.h>
-#include <socketcan_interface/string.h>
 #include <ros/ros.h>
 #include <socketcan_interface/string.h>
+#include <socketcan_interface/string.h>
+#include <socketcan_interface/threading.h>
 
 int main(int argc, char *argv[]) {
   ros::init(argc, argv, "esr_can");
