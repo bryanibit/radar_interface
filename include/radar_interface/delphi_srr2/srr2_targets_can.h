@@ -38,8 +38,10 @@ private:
   ros::Publisher target_array_topic_right_;
   boost::shared_ptr<can::DriverInterface> driver_;
 
-  can::CommInterface::FrameListener::Ptr frame_listener_;
-  can::StateInterface::StateListener::Ptr state_listener_;
+  // can::CommInterface::FrameListener::Ptr frame_listener_;
+  // can::StateInterface::StateListener::Ptr state_listener_;
+  can::FrameListenerConstSharedPtr frame_listener_;
+  can::StateListenerConstSharedPtr state_listener_;
 
   radar_interface::RadarTargetArray targets_msg_left_;
   radar_interface::RadarTargetArray targets_msg_right_;

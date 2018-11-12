@@ -54,7 +54,7 @@ can_tools::CANParseValueInfo VEH_YAW_RATE_VALID = {
 class VehicleToESR : public socketcan_bridge::TopicToSocketCAN {
 public:
   VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-               boost::shared_ptr<can::DriverInterface> driver);
+               can::DriverInterfaceSharedPtr driver);
   void sendCanFrame(const ros::TimerEvent &event);
   virtual ~VehicleToESR();
 
@@ -63,6 +63,6 @@ private:
   void twistCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void setFrameProperties(can::Frame *frame);
   geometry_msgs::Twist twist_;
-  boost::shared_ptr<can::DriverInterface> driver_interface_;
+  can::DriverInterfaceSharedPtr driver_interface_;
   can::Frame frame_vehicle1_;
 };

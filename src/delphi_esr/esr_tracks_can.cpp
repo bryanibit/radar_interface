@@ -5,7 +5,7 @@
 
 namespace radar_interface {
 CANInterfaceESR::CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                                 boost::shared_ptr<can::DriverInterface> driver,
+                                 can::DriverInterfaceSharedPtr driver,
                                  std::string radar_name) {
   can_topic_ = nh->advertise<can_msgs::Frame>("can_raw", 10);
   track_array_topic_ =

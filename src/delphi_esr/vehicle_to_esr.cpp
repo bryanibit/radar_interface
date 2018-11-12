@@ -1,7 +1,7 @@
 #include "radar_interface/delphi_esr/vehicle_to_esr.h"
 
 VehicleToESR::VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                           boost::shared_ptr<can::DriverInterface> driver)
+                           can::DriverInterfaceSharedPtr driver)
     : socketcan_bridge::TopicToSocketCAN(nh, nh_param, driver) {
   twist_topic_ = nh->subscribe<geometry_msgs::Twist>(
       "/vehicle_twist", 10,

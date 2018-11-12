@@ -21,7 +21,7 @@ namespace radar_interface {
 class CANInterfaceESR {
 public:
   CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                  boost::shared_ptr<can::DriverInterface> driver,
+                  can::DriverInterfaceSharedPtr driver,
                   std::string radar_name);
 
 private:
@@ -31,10 +31,12 @@ private:
   void parseTrack(const can::Frame &f);
   ros::Publisher can_topic_;
   ros::Publisher track_array_topic_;
-  boost::shared_ptr<can::DriverInterface> driver_;
+  can::DriverInterfaceSharedPtr driver_;
 
-  can::CommInterface::FrameListener::Ptr frame_listener_;
-  can::StateInterface::StateListener::Ptr state_listener_;
+  // can::CommInterface::FrameListener::Ptr frame_listener_;
+  // can::StateInterface::StateListener::Ptr state_listener_;
+  can::FrameListenerConstSharedPtr frame_listener_;
+  can::StateListenerConstSharedPtr state_listener_;
 
   radar_interface::RadarTrackArray tracks_msg_;
   bool first_track_arrived_;
