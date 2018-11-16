@@ -6,14 +6,14 @@
 namespace radar_interface {
 CANInterfaceSRR2::CANInterfaceSRR2(
     ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-    boost::shared_ptr<can::DriverInterface> driver, std::string radar_name,
+    can::DriverInterfaceSharedPtr driver, std::string radar_name,
     int left_right_both) {
 
   use_left_ = left_right_both == SRR2_LEFT || left_right_both == SRR2_BOTH;
   use_right_ = left_right_both == SRR2_RIGHT || left_right_both == SRR2_BOTH;
   can_topic_ = nh->advertise<can_msgs::Frame>("can_raw", 10);
   radar_name_ = radar_name;
-
+  std::cout << use_left_ << "," << use_right_ << std::endl;
   if (use_left_) {
     target_array_topic_left_ =
         nh->advertise<radar_interface::RadarTargetArray>("targets_left", 10);
@@ -24,6 +24,7 @@ CANInterfaceSRR2::CANInterfaceSRR2(
     first_target_arrived_left_ = false;
     last_target_arrived_left_ = false;
     target_count_left_ = 0;
+    std::cout << "left" << std::endl;
   }
 
   if (use_right_) {
@@ -36,6 +37,7 @@ CANInterfaceSRR2::CANInterfaceSRR2(
     first_target_arrived_right_ = false;
     last_target_arrived_right_ = false;
     target_count_right_ = 0;
+    std::cout << "right" << std::endl;
   }
   driver_ = driver;
 
@@ -52,6 +54,8 @@ CANInterfaceSRR2::CANInterfaceSRR2(
 void CANInterfaceSRR2::frameCallback(const can::Frame &f) {
   // ROS_DEBUG("Message came in: %s", can::tostring(f, true).c_str());
   can::Frame frame = f; // copy the frame first, cannot call isValid() on const.
+
+  // std::cout << "callback" << std::endl;
   if (!frame.isValid()) {
     ROS_ERROR("Invalid frame from SocketCAN: id: %#04x, length: %d, "
               "is_extended: %d, is_error: %d, is_rtr: %d",
@@ -81,7 +85,7 @@ void CANInterfaceSRR2::frameCallback(const can::Frame &f) {
   can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
   convertSocketCANToMessage(f, raw_can_msg);
-
+  // std::cout << "Publish" << std::endl;
   raw_can_msg.header.frame_id = radar_name_;
   raw_can_msg.header.stamp = ros::Time::now();
 
@@ -98,13 +102,13 @@ void CANInterfaceSRR2::parseTarget(const can::Frame &f, bool is_left) {
   } else {
     target_id = f.id - SRR2_RIGHT_TARGET_START;
   }
-  can_tools::parseValue(f, &range, SRR2_TARGET_RANGE);
-  can_tools::parseValue(f, &range_rate, SRR2_TARGET_RANGE_RATE);
-  can_tools::parseValue(f, &azimuth, SRR2_TARGET_ANGLE);
-  can_tools::parseValue(f, &rcs, SRR2_TARGET_AMPLITUDE);
+  SRR2_TARGET_RANGE.parseValue(f, &range);
+  SRR2_TARGET_RANGE_RATE.parseValue(f, &range_rate);
+  SRR2_TARGET_ANGLE.parseValue(f, &azimuth);
+  SRR2_TARGET_AMPLITUDE.parseValue(f, &rcs);
 
-  can_tools::parseValue(f, &status, SRR2_TARGET_STATUS);
-  can_tools::parseValue(f, &valid_level, SRR2_TARGET_VALID_LEVEL);
+  SRR2_TARGET_STATUS.parseValue(f, &status);
+  SRR2_TARGET_VALID_LEVEL.parseValue(f, &valid_level);
   azimuth = azimuth * DEG_TO_RAD;
 
   if (is_left) {

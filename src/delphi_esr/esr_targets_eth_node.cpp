@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   radar_markers.marker_array_.markers.resize(ESR_MAX_TARGET_NUM);
   radar_markers.marker_namespace_ = name;
   radar_markers.initializePublisher(&n);
-  radar_markers.colormap.setColormap(ESR_TGT_MIN_RCS, ESR_TGT_MAX_RCS);
+  radar_markers.colormap_.setColormap(ESR_TGT_MIN_RCS, ESR_TGT_MAX_RCS);
 
   unsigned long scanId;
   unsigned long time_stamp;

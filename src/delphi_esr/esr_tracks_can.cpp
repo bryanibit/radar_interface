@@ -53,6 +53,12 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
 
     aggregateTracks(f);
   }
+  if (f.id == ESR_VEHICLE_INFO) {
+    
+    parseTrack(f);
+
+    aggregateTracks(f);
+  }
   can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
   convertSocketCANToMessage(f, raw_can_msg);
@@ -61,6 +67,44 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
   raw_can_msg.header.stamp = ros::Time::now();
 
   can_topic_.publish(raw_can_msg);
+};
+void CANInterfaceESR::parseVehicleInfo(const can::Frame &f) {
+  int track_id, status;
+  float range, range_rate, range_accel, azimuth, lat_rate, width;
+
+  track_id = f.id - ESR_TRACK_START;
+  ESR_TRACK_RANGE.parseValue(f, &range);
+  ESR_TRACK_RANGE_RATE.parseValue(f, &range_rate);
+  ESR_TRACK_RANGE_ACCEL.parseValue(f, &range_accel);
+  ESR_TRACK_ANGLE.parseValue(f, &azimuth);
+  // std::cout << azimuth << std::endl;
+
+  ESR_TRACK_LAT_RATE.parseValue(f, &lat_rate);
+  ESR_TRACK_STATUS.parseValue(f, &status);
+  ESR_TRACK_WIDTH.parseValue(f, &width);
+
+  // if (status>0 && (abs(range_rate)>1 || abs(lat_rate)>1 ||
+  // abs(range_accel)>1)){
+  // ROS_INFO("%d,%d,%f,%f,%f,%f,%f", track_id,status, azimuth, range,
+  // range_rate, lat_rate,
+  //          range_accel);
+  //          }
+  azimuth = azimuth * DEG_TO_RAD;
+  tracks_msg_.tracks[track_id].id = track_id;
+  tracks_msg_.tracks[track_id].pos.x = cos(azimuth) * range;
+  tracks_msg_.tracks[track_id].pos.y = sin(azimuth) * range;
+  tracks_msg_.tracks[track_id].vel.x =
+      cos(azimuth) * range_rate + sin(azimuth) * lat_rate;
+  tracks_msg_.tracks[track_id].vel.y =
+      sin(azimuth) * range_rate + cos(azimuth) * lat_rate;
+  tracks_msg_.tracks[track_id].acc.x = cos(azimuth) * range_accel;
+  tracks_msg_.tracks[track_id].acc.y = sin(azimuth) * range_accel;
+
+  tracks_msg_.tracks[track_id].status = status;
+  tracks_msg_.tracks[track_id].width = width;
+  if (width > 0.0) {
+    std::cout << width << std::endl;
+  }
 };
 
 void CANInterfaceESR::parseTrack(const can::Frame &f) {

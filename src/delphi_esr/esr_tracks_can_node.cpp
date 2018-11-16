@@ -10,11 +10,12 @@ int main(int argc, char *argv[]) {
   ros::NodeHandle nh(""), nh_param("~");
 
   std::string can_device, radar_name;
-  nh_param.param<std::string>("can_device", can_device, "vcan0");
+  nh_param.param<std::string>("can_device", can_device, "can0");
   nh_param.param<std::string>("radar_name", radar_name, "esr");
 
   //boost::shared_ptr<can::ThreadedSocketCANInterface> driver = boost::make_shared<can::ThreadedSocketCANInterface> ();
-  can::ThreadedSocketCANInterfaceSharedPtr driver;
+  //can::ThreadedSocketCANInterfaceSharedPtr driver;
+  can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface> ();
 
   if (!driver->init(can_device,
                     0)) // initialize device at can_device, 0 for no loopback.

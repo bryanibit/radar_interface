@@ -4,7 +4,7 @@ VehicleToESR::VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
                            can::DriverInterfaceSharedPtr driver)
     : socketcan_bridge::TopicToSocketCAN(nh, nh_param, driver) {
   twist_topic_ = nh->subscribe<geometry_msgs::Twist>(
-      "/vehicle_twist", 10,
+      "vehicle_twist", 10,
       boost::bind(&VehicleToESR::twistCallback, this, _1));
   driver_interface_ = driver;
 
@@ -25,6 +25,7 @@ void VehicleToESR::setFrameProperties(can::Frame *frame) {
 
 void VehicleToESR::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
   twist_ = *msg.get();
+  ROS_INFO("Received speed: %f.", twist_.linear.x);
 }
 
 void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {

@@ -13,10 +13,10 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh(""), nh_param("~");
 
   std::string can_device;
-  nh_param.param<std::string>("can_device", can_device, "vcan0");
+  nh_param.param<std::string>("can_device", can_device, "can0");
 
   //boost::shared_ptr<can::ThreadedSocketCANInterface> driver = boost::make_shared<can::ThreadedSocketCANInterface> ();
-  can::ThreadedSocketCANInterfaceSharedPtr driver;
+  can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface> ();
 
   if (!driver->init(can_device, 0))  // initialize device at can_device, 0 for no loopback.
   {
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   VehicleToESR to_topic_bridge(&nh, &nh_param, driver);
   to_topic_bridge.setup();
 
-  ros::Timer timer = nh.createTimer(ros::Duration(0.03), &VehicleToESR::sendCanFrame, &to_topic_bridge);
+  ros::Timer timer = nh.createTimer(ros::Duration(0.1), &VehicleToESR::sendCanFrame, &to_topic_bridge);
 
   ros::spin();
 
