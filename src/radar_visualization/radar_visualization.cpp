@@ -131,17 +131,26 @@ void RadarMarkers::updateTrackMarkers(
 }
 void RadarMarkers::updateTargetMarkers(
     const radar_interface::RadarTargetArray &target_array) {
+
+  std::string frame_string = "radar";
+  if (!target_array.header.frame_id.empty()) {
+    frame_string = target_array.header.frame_id;
+  }
+
   for (size_t i = 0; i < marker_num_; i++) {
-    if (target_array.targets[i].status != 0) {
+    if (target_array.targets[i].status > -1) {
+      
+      marker_array_.markers[i].header.frame_id = frame_string;
       marker_array_.markers[i].id = i;
       marker_array_.markers[i].pose.position.x =
           target_array.targets[i].range * cos(target_array.targets[i].azimuth);
       marker_array_.markers[i].pose.position.y =
           target_array.targets[i].range * sin(target_array.targets[i].azimuth);
       marker_array_.markers[i].action = visualization_msgs::Marker::ADD;
+
       marker_array_.markers[i].type = visualization_msgs::Marker::CUBE;
       marker_array_.markers[i].color =
-          colormap.getColor(target_array.targets[i].rcs);
+          colormap_.getColor(target_array.targets[i].rcs);
       if (target_array.targets[i].status == -1) {
         marker_array_.markers[i].type = visualization_msgs::Marker::SPHERE;
       }
@@ -242,6 +251,7 @@ void Colormap::setColormap(const float min_color_value,
 
 std_msgs::ColorRGBA Colormap::getColor(const float value) {
   std_msgs::ColorRGBA color;
+  color.a = intensity_;
   float hue =
       ((value - min_color_value_) / (value_interval_)) * color_interval_ +
       start_color_;
