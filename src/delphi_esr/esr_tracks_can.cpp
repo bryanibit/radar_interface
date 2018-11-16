@@ -53,12 +53,11 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
 
     aggregateTracks(f);
   }
-  if (f.id == ESR_VEHICLE_INFO) {
+  /*if (f.id == ESR_VEHICLE_INFO) {
     
-    parseTrack(f);
+    parseVehicleInfo(f);
 
-    aggregateTracks(f);
-  }
+  }*/
   can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
   convertSocketCANToMessage(f, raw_can_msg);
@@ -68,7 +67,7 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
 
   can_topic_.publish(raw_can_msg);
 };
-void CANInterfaceESR::parseVehicleInfo(const can::Frame &f) {
+/*void CANInterfaceESR::parseVehicleInfo(const can::Frame &f) {
   int track_id, status;
   float range, range_rate, range_accel, azimuth, lat_rate, width;
 
@@ -105,7 +104,7 @@ void CANInterfaceESR::parseVehicleInfo(const can::Frame &f) {
   if (width > 0.0) {
     std::cout << width << std::endl;
   }
-};
+};*/
 
 void CANInterfaceESR::parseTrack(const can::Frame &f) {
   int track_id, status;

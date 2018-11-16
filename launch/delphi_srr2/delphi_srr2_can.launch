@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="srr2_name" default="srr2"/>
+<arg name="can_device" default="can1"/>
+<arg name="srr2_to_use" default="both"/>
+
+<node pkg="radar_interface" type="srr2_targets_can_node" name="srr2_targets_can" ns="$(arg srr2_name)" output="screen" >
+        <param name="can_device" value="$(arg can_device)" />
+        <param name="radar_name" value="$(arg srr2_name)" />
+        <param name="left_right_both" value="$(arg srr2_to_use)" />
+</node>
+
+<node pkg="radar_interface" type="targets_to_markers_node" name="srr2_targets_to_markers_left" ns="$(arg srr2_name)" output="screen">
+        <remap from="radar_targets" to="targets_left" />
+        <remap from="markers_pos" to="markers_pos_left" />
+</node>  
+
+<node pkg="radar_interface" type="targets_to_markers_node" name="srr2_targets_to_markers_right" ns="$(arg srr2_name)" output="screen">
+        <remap from="radar_targets" to="targets_right" />
+        <remap from="markers_pos" to="markers_pos_right" />
+</node>  
+
+<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_left" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg srr2_name)_left 40"/>
+<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_right" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg srr2_name)_right 40"/>
+
+</launch>
