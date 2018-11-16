@@ -106,12 +106,23 @@ catkin_package(
   CATKIN_DEPENDS
   message_runtime
  INCLUDE_DIRS include
- LIBRARIES ${PROJECT_NAME}
- CATKIN_DEPENDS message_generation roscpp std_msgs
+ LIBRARIES 
+  can_tools
+  tcp_interface
+  radar_visualization
+  esr_tracks_can
+  srr2_targets_can
+  srr2_tracks_eth
+  vehicle_to_srr2
+  vehicle_to_esr
+ CATKIN_DEPENDS 
+  message_generation 
+  roscpp 
+  std_msgs
 #  DEPENDS system_lib
 )
 include_directories(
-  include ${catkin_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
   include
 )
 
@@ -207,7 +218,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 add_library(can_tools
   src/can_tools.cpp
-  include/radar_interface/can_tools.h
+  # include/radar_interface/can_tools.h
 )
 add_dependencies(can_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(can_tools
@@ -215,7 +226,7 @@ target_link_libraries(can_tools
 )
 
 add_library(tcp_interface
-  include/radar_interface/tcp_interface.h
+  # include/radar_interface/tcp_interface.h
   src/tcp_interface.cpp
 )
 
@@ -225,7 +236,7 @@ target_link_libraries(tcp_interface
 )
 
 add_library(radar_visualization
-  include/radar_interface/radar_visualization/radar_visualization.h
+  # include/radar_interface/radar_visualization/radar_visualization.h
   src/radar_visualization/radar_visualization.cpp
 )
 
@@ -235,7 +246,7 @@ target_link_libraries(radar_visualization
 )
 
 add_executable(esr_targets_eth
-  include/radar_interface/delphi_esr/esr_targets_eth.h
+  # include/radar_interface/delphi_esr/esr_targets_eth.h
   src/delphi_esr/esr_targets_eth_node.cpp
 )
 add_dependencies(esr_targets_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -246,14 +257,23 @@ target_link_libraries(esr_targets_eth
 )
 
 add_library(esr_tracks_can
-  include/radar_interface/delphi_esr/esr_tracks_can.h
+  # include/radar_interface/delphi_esr/esr_tracks_can.h
   src/delphi_esr/esr_tracks_can.cpp
+)
+add_dependencies(esr_tracks_can 
+${${PROJECT_NAME}_EXPORTED_TARGETS} 
+${catkin_EXPORTED_TARGETS}
+radar_interface_generate_messages_cpp
 )
 
 add_executable(esr_tracks_can_node
   src/delphi_esr/esr_tracks_can_node.cpp
 )
-add_dependencies(esr_tracks_can_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(esr_tracks_can_node 
+${${PROJECT_NAME}_EXPORTED_TARGETS} 
+${catkin_EXPORTED_TARGETS}
+radar_interface_generate_messages_cpp
+)
 target_link_libraries(esr_tracks_can_node
   ${catkin_LIBRARIES}
   radar_visualization
@@ -262,8 +282,13 @@ target_link_libraries(esr_tracks_can_node
 )
 
 add_library(srr2_targets_can
-  include/radar_interface/delphi_srr2/srr2_targets_can.h
+  # include/radar_interface/delphi_srr2/srr2_targets_can.h
   src/delphi_srr2/srr2_targets_can.cpp
+)
+add_dependencies(srr2_targets_can ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(srr2_targets_can
+  ${catkin_LIBRARIES}
+  can_tools
 )
 
 add_executable(srr2_targets_can_node
@@ -277,7 +302,7 @@ target_link_libraries(srr2_targets_can_node
 )
 
 add_executable(srr2_tracks_eth
-  include/radar_interface/delphi_srr2/srr2_tracks_eth.h
+  # include/radar_interface/delphi_srr2/srr2_tracks_eth.h
   src/delphi_srr2/srr2_tracks_eth_node.cpp
 )
 add_dependencies(srr2_tracks_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -297,7 +322,7 @@ target_link_libraries(vehicle_to_srr2_node
 )
 
 add_library(vehicle_to_srr2
-  include/radar_interface/delphi_srr2/vehicle_to_srr2.h
+  # include/radar_interface/delphi_srr2/vehicle_to_srr2.h
   src/delphi_srr2/vehicle_to_srr2.cpp
 )
 add_dependencies(vehicle_to_srr2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -316,7 +341,7 @@ target_link_libraries(vehicle_to_esr_node
 )
 
 add_library(vehicle_to_esr
-  include/radar_interface/delphi_esr/vehicle_to_esr.h
+  # include/radar_interface/delphi_esr/vehicle_to_esr.h
   src/delphi_esr/vehicle_to_esr.cpp
 )
 add_dependencies(vehicle_to_esr ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -328,7 +353,7 @@ target_link_libraries(vehicle_to_esr
 
 
 add_executable(imu_to_vehicle_node
-  include/radar_interface/vehicle/imu_to_vehicle_node.h
+  # include/radar_interface/vehicle/imu_to_vehicle_node.h
   src/vehicle/imu_to_vehicle_node.cpp
 )
 add_dependencies(imu_to_vehicle_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
