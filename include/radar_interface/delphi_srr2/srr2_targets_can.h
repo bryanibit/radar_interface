@@ -25,7 +25,7 @@ namespace radar_interface {
 class CANInterfaceSRR2 {
 public:
   CANInterfaceSRR2(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-                   boost::shared_ptr<can::DriverInterface> driver,
+                   can::DriverInterfaceSharedPtr driver,
                    std::string radar_name, int left_right_both);
 
 private:
@@ -36,10 +36,8 @@ private:
   ros::Publisher can_topic_;
   ros::Publisher target_array_topic_left_;
   ros::Publisher target_array_topic_right_;
-  boost::shared_ptr<can::DriverInterface> driver_;
+  can::DriverInterfaceSharedPtr driver_;
 
-  // can::CommInterface::FrameListener::Ptr frame_listener_;
-  // can::StateInterface::StateListener::Ptr state_listener_;
   can::FrameListenerConstSharedPtr frame_listener_;
   can::StateListenerConstSharedPtr state_listener_;
 
@@ -56,7 +54,6 @@ private:
   std::string radar_name_;
   std::string radar_name_left_;
   std::string radar_name_right_;
-
 };
 
 void convertSocketCANToMessage(const can::Frame &f, can_msgs::Frame &m) {
@@ -72,69 +69,55 @@ void convertSocketCANToMessage(const can::Frame &f, can_msgs::Frame &m) {
   }
 };
 
-
-
 // CAN messages layout
-can_tools::CANParseValueInfo SRR2_TARGET_VALID_LEVEL = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 0,
-    .END_BYTE = 0,
-    .SHIFT = 5,
-    .SCALE = 1,
-    .OFFSET = 0,
-    .MIN = 0,
-    .MAX = 7,
-    .MASK = {0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-can_tools::CANParseValueInfo SRR2_TARGET_STATUS = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 0,
-    .END_BYTE = 0,
-    .SHIFT = 4,
-    .SCALE = 1,
-    .OFFSET = 0,
-    .MIN = 0,
-    .MAX = 1,
-    .MASK = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-can_tools::CANParseValueInfo SRR2_TARGET_AMPLITUDE = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 0,
-    .END_BYTE = 1,
-    .SHIFT = 0,
-    .SCALE = 0.125,
-    .OFFSET = 0,
-    .MIN = -24,
-    .MAX = 40,
-    .MASK = {0x0f, 0xff, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00}};
-can_tools::CANParseValueInfo SRR2_TARGET_ANGLE = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 2,
-    .END_BYTE = 3,
-    .SHIFT = 0,
-    .SCALE = 0.0078125,
-    .OFFSET = 0,
-    .MIN = -102.4,
-    .MAX = 102.2,
-    .MASK = {0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00}};
-can_tools::CANParseValueInfo SRR2_TARGET_RANGE = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 4,
-    .END_BYTE = 5,
-    .SHIFT = 0,
-    .SCALE = 0.0078125,
-    .OFFSET = 0,
-    .MIN = 0,
-    .MAX = 204.7,
-    .MASK = {0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00}};
-can_tools::CANParseValueInfo SRR2_TARGET_RANGE_RATE = {
-    .MSG_ID = 0x500,
-    .START_BYTE = 6,
-    .END_BYTE = 7,
-    .SHIFT = 0,
-    .SCALE = 0.0078125,
-    .OFFSET = 0,
-    .MIN = -81.92,
-    .MAX = 81.91,
-    .MASK = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}};
+can_tools::CANParseInfo SRR2_TARGET_VALID_LEVEL(7,     // start_bit
+                                                3,     // length
+                                                false, // is_signed
+                                                1,     // scale
+                                                0.0,   // offset
+                                                0,     // min
+                                                7      // max
+                                                );
+can_tools::CANParseInfo SRR2_TARGET_STATUS(4,     // start_bit
+                                           1,     // length
+                                           false, // is_signed
+                                           1,     // scale
+                                           0.0,   // offset
+                                           0,     // min
+                                           1      // max
+                                           );
+can_tools::CANParseInfo SRR2_TARGET_AMPLITUDE(3,     // start_bit
+                                              12,    // length
+                                              true,  // is_signed
+                                              0.125, // scale
+                                              0.0,   // offset
+                                              -24,   // min
+                                              40     // max
+                                              );
+can_tools::CANParseInfo SRR2_TARGET_ANGLE(23,        // start_bit
+                                          16,        // length
+                                          true,      // is_signed
+                                          0.0078125, // scale
+                                          0.0,       // offset
+                                          -102.4,    // min
+                                          102.2      // max
+                                          );
+can_tools::CANParseInfo SRR2_TARGET_RANGE(39,        // start_bit
+                                          16,        // length
+                                          false,     // is_signed
+                                          0.0078125, // scale
+                                          0.0,       // offset
+                                          0,         // min
+                                          204.7      // max
+                                          );
+can_tools::CANParseInfo SRR2_TARGET_RANGE_RATE(55,        // start_bit
+                                               16,        // length
+                                               true,      // is_signed
+                                               0.0078125, // scale
+                                               0.0,       // offset
+                                               -81.92,    // min
+                                               81.91      // max
+                                               );
 
 }; // namespace radar_interface
 

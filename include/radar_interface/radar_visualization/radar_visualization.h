@@ -54,5 +54,5 @@ public:
   ros::Publisher speed_pub_;
   ros::Publisher accel_pub_;
   ros::Publisher strip_pub_;
-  Colormap colormap;
+  Colormap colormap_;
 };
