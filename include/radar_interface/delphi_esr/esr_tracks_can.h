@@ -2,6 +2,7 @@
 #define ESR_CAN_INTERFACE_H
 
 #include "radar_interface/RadarTrackArray.h"
+#include "radar_interface/VehicleInfo.h"
 #include "radar_interface/can_tools.h"
 #include <can_msgs/Frame.h>
 #include <ros/ros.h>
@@ -14,6 +15,7 @@
 #define ESR_MAX_TRACK_NUMBER 64
 #define ESR_TRACK_START 0x500
 #define ESR_TRACK_END 0x53F
+#define ESR_VEHICLE_INFO_1 0x4E0
 
 #define DEG_TO_RAD 0.017453293
 
@@ -29,8 +31,10 @@ private:
   void stateCallback(const can::State &s);
   void aggregateTracks(const can::Frame &f);
   void parseTrack(const can::Frame &f);
+  void parseVehicleInfo1(const can::Frame &f);
   ros::Publisher can_topic_;
   ros::Publisher track_array_topic_;
+  ros::Publisher vehicle_info_topic_;
   can::DriverInterfaceSharedPtr driver_;
 
   // can::CommInterface::FrameListener::Ptr frame_listener_;
@@ -39,6 +43,7 @@ private:
   can::StateListenerConstSharedPtr state_listener_;
 
   radar_interface::RadarTrackArray tracks_msg_;
+  radar_interface::VehicleInfo vehicle_info_msg_;
   bool first_track_arrived_;
   bool last_track_arrived_;
   int track_count_;
@@ -157,126 +162,23 @@ can_tools::CANParseInfo ESR_TRACK_RANGE_RATE(53,    // start_bit
                                         81.91  // max
                                         );
 
-// can_tools::CANParseValueInfo ESR_TRACK_LAT_RATE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 0,
-//     .END_BYTE = 0,
-//     .SHIFT = 2,
-//     .SCALE = 0.25,
-//     .OFFSET = 0,
-//     .MIN = -8,
-//     .MAX = 7.75,
-//     .MASK = {0xfc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_GROUPING = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 0,
-//     .END_BYTE = 0,
-//     .SHIFT = 1,
-//     .SCALE = 1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 1,
-//     .MASK = {0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_ONCOMING = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 0,
-//     .END_BYTE = 0,
-//     .SHIFT = 0,
-//     .SCALE = 1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 1,
-//     .MASK = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_STATUS = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 1,
-//     .END_BYTE = 1,
-//     .SHIFT = 5,
-//     .SCALE = 1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 7,
-//     .MASK = {0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_ANGLE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 1,
-//     .END_BYTE = 2,
-//     .SHIFT = 3,
-//     .SCALE = 0.1,
-//     .OFFSET = 0,
-//     .MIN = -51.2,
-//     .MAX = 51.1,
-//     .MASK = {0x00, 0x1f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_RANGE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 2,
-//     .END_BYTE = 3,
-//     .SHIFT = 0,
-//     .SCALE = 0.1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 204.7,
-//     .MASK = {0x00, 0x00, 0x07, 0xff, 0x00, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_BRIDGE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 4,
-//     .END_BYTE = 4,
-//     .SHIFT = 7,
-//     .SCALE = 1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 1,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_ROLLING = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 4,
-//     .END_BYTE = 4,
-//     .SHIFT = 6,
-//     .SCALE = 0.1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 1,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_WIDTH = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 4,
-//     .END_BYTE = 4,
-//     .SHIFT = 2,
-//     .SCALE = 0.5,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 7.5,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_RANGE_ACCEL = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 4,
-//     .END_BYTE = 5,
-//     .SHIFT = 0,
-//     .SCALE = 0.05,
-//     .OFFSET = 0,
-//     .MIN = -25.6,
-//     .MAX = 25.55,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0x00, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_MED_RANGE_MODE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 6,
-//     .END_BYTE = 6,
-//     .SHIFT = 6,
-//     .SCALE = 1,
-//     .OFFSET = 0,
-//     .MIN = 0,
-//     .MAX = 3,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00}};
-// can_tools::CANParseValueInfo ESR_TRACK_RANGE_RATE = {
-//     .MSG_ID = 0x500,
-//     .START_BYTE = 6,
-//     .END_BYTE = 7,
-//     .SHIFT = 0,
-//     .SCALE = 0.01,
-//     .OFFSET = 0,
-//     .MIN = -81.92,
-//     .MAX = 81.91,
-//     .MASK = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0xff}};
+can_tools::CANParseInfo ESR_VEHICLE_SPEED(50,    // start_bit
+                                        11,    // length
+                                        false, // is_signed
+                                        0.0625,   // scale
+                                        0.0,   // offset
+                                        0,     // min
+                                        127.9375  // max
+                                        );
+
+can_tools::CANParseInfo ESR_VEHICLE_YAW_RATE(47,    // start_bit
+                                        12,    // length
+                                        true, // is_signed
+                                        0.0625,   // scale
+                                        0.0,   // offset
+                                        -128,     // min
+                                        127.9375  // max
+                                        );
 
 }; // namespace radar_interface
 

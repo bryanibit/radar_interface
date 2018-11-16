@@ -1,7 +1,7 @@
 Header header
 int32 steering_angle
-int32 yaw_rate
-int32 speed
+float32 yaw_rate
+float32 speed
 bool is_reverse
 uint8 steering_angle_sign # 0 - Left turn; 1 - Right turn
 uint8 TURN_SIGNAL_OFF=0
