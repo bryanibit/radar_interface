@@ -1,4 +1,4 @@
-#include "geometry_msgs/Twist.h"
+#include "geometry_msgs/TwistStamped.h"
 #include "radar_interface/can_tools.h"
 #include "socketcan_bridge/topic_to_socketcan.h"
 #include <can_msgs/Frame.h>
@@ -60,9 +60,9 @@ public:
 
 private:
   ros::Subscriber twist_topic_;
-  void twistCallback(const geometry_msgs::Twist::ConstPtr &msg);
+  void twistCallback(const geometry_msgs::TwistStamped::ConstPtr &msg);
   void setFrameProperties(can::Frame *frame);
-  geometry_msgs::Twist twist_;
+  geometry_msgs::TwistStamped twist_;
   can::DriverInterfaceSharedPtr driver_interface_;
   can::Frame frame_vehicle1_;
 };

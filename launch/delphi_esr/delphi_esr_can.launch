@@ -10,6 +10,7 @@
 </node>
 <node pkg="radar_interface" type="vehicle_to_esr_node" name="vehicle_to_esr" ns="$(arg esr_name)" output="screen" >
         <param name="can_device" value="$(arg can_device)" />
+        <remap from="vehicle_twist" to="/xsens/twist" />
 </node>
 <!--
 <node pkg="radar_interface" type="imu_to_vehicle_node" name="imu_to_vehicle"  output="screen" >
@@ -19,6 +20,6 @@
         <remap from="/radar_tracks" to="/$(arg esr_name)/tracks" />
 </node>  
 
-<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>;
+<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 -0.38 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>;
 
 </launch>

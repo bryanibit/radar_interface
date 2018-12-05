@@ -19,9 +19,9 @@
 <node pkg="radar_interface" type="targets_to_markers_node" name="srr2_targets_to_markers_right" ns="$(arg srr2_name)" output="screen">
         <remap from="radar_targets" to="targets_right" />
         <remap from="markers_pos" to="markers_pos_right" />
-</node>  
+ </node>  
 
-<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_left" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg srr2_name)_left 40"/>
-<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_right" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg srr2_name)_right 40"/>
+<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_left"  args="0.0 0.16 0.0  1.04719755 0.0 0.0 /base_link $(arg srr2_name)_left 40"/>
+<node pkg="tf" type="static_transform_publisher" name="base_link_srr2_right" args="0.0 -0.74 0.0 -1.04719755 0.0 0.0 /base_link $(arg srr2_name)_right 40"/>
 
 </launch>

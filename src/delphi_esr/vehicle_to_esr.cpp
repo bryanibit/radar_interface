@@ -3,7 +3,7 @@
 VehicleToESR::VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
                            can::DriverInterfaceSharedPtr driver)
     : socketcan_bridge::TopicToSocketCAN(nh, nh_param, driver) {
-  twist_topic_ = nh->subscribe<geometry_msgs::Twist>(
+  twist_topic_ = nh->subscribe<geometry_msgs::TwistStamped>(
       "vehicle_twist", 10,
       boost::bind(&VehicleToESR::twistCallback, this, _1));
   driver_interface_ = driver;
@@ -23,9 +23,9 @@ void VehicleToESR::setFrameProperties(can::Frame *frame) {
   }
 }
 
-void VehicleToESR::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
+void VehicleToESR::twistCallback(const geometry_msgs::TwistStamped::ConstPtr &msg) {
   twist_ = *msg.get();
-  ROS_INFO("Received speed: %f.", twist_.linear.x);
+  ROS_INFO("Received speed: %f.", twist_.twist.linear.x);
 }
 
 void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
@@ -33,9 +33,9 @@ void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
   bool always_true = true;
   frame_vehicle1_.id = VEH_VEL.MSG_ID;
   frame_vehicle1_.id = VEH_YAW_RATE.MSG_ID;
-  float speed_abs = std::abs(twist_.linear.x);
-  bool speed_sign = std::signbit(twist_.linear.x);
-  float yaw_rate_deg = - twist_.angular.z * RAD_TO_DEG;
+  float speed_abs = std::abs(twist_.twist.linear.x);
+  bool speed_sign = std::signbit(twist_.twist.linear.x);
+  float yaw_rate_deg = twist_.twist.angular.z * RAD_TO_DEG;
 
   can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
   can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);

@@ -25,7 +25,6 @@ CANInterfaceESR::CANInterfaceESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
 
   tracks_msg_.tracks.resize(ESR_MAX_TRACK_NUMBER);
   tracks_msg_.header.frame_id = radar_name_;
-
 };
 
 void CANInterfaceESR::frameCallback(const can::Frame &f) {
@@ -53,9 +52,8 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
     aggregateTracks(f);
   }
   if (f.id == ESR_VEHICLE_INFO_1) {
-    
-    parseVehicleInfo1(f);
 
+    parseVehicleInfo1(f);
   }
   can_msgs::Frame raw_can_msg;
   // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
@@ -81,7 +79,7 @@ void CANInterfaceESR::parseVehicleInfo1(const can::Frame &f) {
 
   vehicle_info_msg_.header.stamp = ros::Time::now();
   vehicle_info_topic_.publish(vehicle_info_msg_);
-  };
+};
 
 void CANInterfaceESR::parseTrack(const can::Frame &f) {
   int track_id, status;
@@ -108,10 +106,8 @@ void CANInterfaceESR::parseTrack(const can::Frame &f) {
   tracks_msg_.tracks[track_id].id = track_id;
   tracks_msg_.tracks[track_id].pos.x = cos(azimuth) * range;
   tracks_msg_.tracks[track_id].pos.y = sin(azimuth) * range;
-  tracks_msg_.tracks[track_id].vel.x =
-      cos(azimuth) * range_rate + sin(azimuth) * lat_rate;
-  tracks_msg_.tracks[track_id].vel.y =
-      sin(azimuth) * range_rate + cos(azimuth) * lat_rate;
+  tracks_msg_.tracks[track_id].vel.x = range_rate;
+  tracks_msg_.tracks[track_id].vel.y = lat_rate;
   tracks_msg_.tracks[track_id].acc.x = cos(azimuth) * range_accel;
   tracks_msg_.tracks[track_id].acc.y = sin(azimuth) * range_accel;
 
