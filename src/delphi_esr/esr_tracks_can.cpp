@@ -225,6 +225,7 @@ void CANInterfaceESR::aggregateTracks(const can::Frame &f) {
   if (track_count_ == ESR_MAX_TRACK_NUMBER &&
       track_extras_count_ == ESR_MAX_TRACK_EXTRAS_NUMBER) {
     to_publish = true;
+    tracks_msg_.vehicle_info = vehicle_info_msg_;
     track_array_topic_.publish(tracks_msg_);
   }
 };
