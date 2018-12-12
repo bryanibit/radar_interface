@@ -4,11 +4,11 @@ VehicleToESR::VehicleToESR(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
                            can::DriverInterfaceSharedPtr driver)
     : socketcan_bridge::TopicToSocketCAN(nh, nh_param, driver) {
   twist_topic_ = nh->subscribe<geometry_msgs::TwistStamped>(
-      "vehicle_twist", 10,
-      boost::bind(&VehicleToESR::twistCallback, this, _1));
+      "vehicle_twist", 10, boost::bind(&VehicleToESR::twistCallback, this, _1));
   driver_interface_ = driver;
 
   setFrameProperties(&frame_vehicle1_);
+  setFrameProperties(&frame_vehicle2_);
 }
 
 VehicleToESR::~VehicleToESR() {}
@@ -23,7 +23,8 @@ void VehicleToESR::setFrameProperties(can::Frame *frame) {
   }
 }
 
-void VehicleToESR::twistCallback(const geometry_msgs::TwistStamped::ConstPtr &msg) {
+void VehicleToESR::twistCallback(
+    const geometry_msgs::TwistStamped::ConstPtr &msg) {
   twist_ = *msg.get();
   ROS_INFO("Received speed: %f.", twist_.twist.linear.x);
 }
@@ -31,16 +32,30 @@ void VehicleToESR::twistCallback(const geometry_msgs::TwistStamped::ConstPtr &ms
 void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
 
   bool always_true = true;
-  frame_vehicle1_.id = VEH_VEL.MSG_ID;
-  frame_vehicle1_.id = VEH_YAW_RATE.MSG_ID;
+  int number_of_tracks = ESR_MAX_TRACKS;
+  int grouping_mode = ESR_GROUPING_MODE;
+
+  frame_vehicle1_.id = ESR_VEHICLE_INFO_MSG_ID_TX_1;
+  frame_vehicle2_.id = ESR_VEHICLE_INFO_MSG_ID_TX_2;
+
   float speed_abs = std::abs(twist_.twist.linear.x);
   bool speed_sign = std::signbit(twist_.twist.linear.x);
-  float yaw_rate_deg = twist_.twist.angular.z * RAD_TO_DEG;
+  float yaw_rate_deg = - twist_.twist.angular.z * RAD_TO_DEG;
 
-  can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
-  can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
-  can_tools::setValue(&frame_vehicle1_, yaw_rate_deg, VEH_YAW_RATE);
-  can_tools::setValue(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
+  // can_tools::setValue(&frame_vehicle1_, speed_abs, VEH_VEL);
+  // can_tools::setValue(&frame_vehicle1_, speed_sign, VEH_VEL_DIR);
+  // can_tools::setValue(&frame_vehicle1_, yaw_rate_deg, VEH_YAW_RATE);
+  // can_tools::setValue(&frame_vehicle1_, always_true, VEH_YAW_RATE_VALID);
+
+  VEH_YAW_RATE_VALID.setValue(&frame_vehicle1_, always_true);
+  VEH_YAW_RATE.setValue(&frame_vehicle1_, yaw_rate_deg);
+
+  VEH_VEL.setValue(&frame_vehicle1_, speed_abs);
+  VEH_VEL_DIR.setValue(&frame_vehicle1_, speed_sign);
+  VEH_VEL_VALID.setValue(&frame_vehicle2_, always_true);
+  MAX_TRACKS.setValue(&frame_vehicle2_, number_of_tracks);
+  TO_RADIATE.setValue(&frame_vehicle2_, always_true);
+  GROUPING_MODE.setValue(&frame_vehicle2_, grouping_mode);
 
   bool res = driver_interface_->send(frame_vehicle1_);
 
@@ -50,6 +65,16 @@ void VehicleToESR::sendCanFrame(const ros::TimerEvent &event) {
   } else {
     ROS_INFO("Sent message: %s.", can::tostring(frame_vehicle1_, true).c_str());
   }
+
+  res = driver_interface_->send(frame_vehicle2_);
+
+  if (!res) {
+    ROS_ERROR("Failed to send message: %s.",
+              can::tostring(frame_vehicle1_, true).c_str());
+  } else {
+    ROS_INFO("Sent message: %s.", can::tostring(frame_vehicle2_, true).c_str());
+  }
+
   // res = driver_interface_->send(frame_yaw_rate);
   // if (!res) {
   //   ROS_ERROR("Failed to send message: %s.",

@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
   signed short int track_y_vel;
   signed short int track_y_acc;
   unsigned char track_status;
-  unsigned char is_stationary;
+  unsigned char is_movable;
   // Vehicle Info
   signed int steering_angle;
   signed int yaw_rate;
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
       tcp_interface.parse_value(&track_y_vel,   xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_Y_VEL_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_Y_VEL_SIZE);
       tcp_interface.parse_value(&track_y_acc,   xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_Y_ACC_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_Y_ACC_SIZE);
       tcp_interface.parse_value(&track_status,  xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_STATUS_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_STATUS_SIZE);
-      tcp_interface.parse_value(&is_stationary, xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_STATIONARY_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_STATIONARY_SIZE);
+      tcp_interface.parse_value(&is_movable, xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_STATIONARY_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_STATIONARY_SIZE);
         // clang-format on
         // if (track_x_pos != 0) {
         //   std::cout << track_x_pos << "," << track_x_vel << "," << track_x_acc
@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
         tracks_msg.tracks[i].acc.x = track_x_acc / SRR2_TRCK_ACC_SCALE;
         tracks_msg.tracks[i].acc.y = track_y_acc / SRR2_TRCK_ACC_SCALE;
         tracks_msg.tracks[i].status = track_status;
-        tracks_msg.tracks[i].is_stationary = is_stationary;
+        tracks_msg.tracks[i].is_movable = is_movable;
       }
       tracks_msg.header = header;
       tracks_pub.publish(tracks_msg);

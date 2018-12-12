@@ -31,17 +31,13 @@ private:
 public:
   CANParseInfo(uint8_t start_bit, uint8_t length, bool is_signed, float scale,
                float offset, float min, float max);
-  // uin8_t getStartByte();
-  // uin8_t getEndByte();
+
   template <typename T> void parseValue(const can::Frame &frame, T *value) {
-    // assumes that the frame slot is 0-filled
-    // std::cout << "1   JURAAAA" << std::endl;
     int int_value = 0;
     unsigned char temp, temp1, temp2, temp3, temp4, temp5;
 
     for (size_t i = start_byte_; i <= end_byte_; i++) {
       int_value = (int_value << 8) | (frame.data[i] & mask_[i]);
-      // std::cout << std::bitset<8>(mask_[i]) << ","<<i<< "," << int_value<< ","<< std::endl;
     }
     int_value = int_value >> end_byte_shift_;
 
@@ -49,14 +45,26 @@ public:
         int_value > complement_max_positive_) {
       int_value = int_value + complement_offset_;
     }
-
-    // std::cout << int_value<< ","<< *value << std::endl;
     *value = int_value * scale_;
     *value = *value + offset_;
-    // std::cout << int_value<< ","<< *value << std::endl;
-    // if (length_==10){
-    //   std::cout << "this line " <<  std::endl ;
-    // }
+  }
+
+  template <typename T> void setValue(can::Frame *frame, T &value) {
+    // assumes that the frame slot is 0-filled
+    T value_clamped = std::max(T(min_), std::min(value, T(max_)));
+    int int_value = (int((value_clamped - offset_) / scale_))
+                    << end_byte_shift_;
+    unsigned char temp, temp1, temp2, temp3, temp4, temp5;
+    for (size_t i = start_byte_; i <= end_byte_; i++) {
+      temp = (int_value >> (8 * (end_byte_ - i))) & mask_[i];
+      temp1 = frame->data[i] & (~mask_[i]);
+      temp2 = frame->data[i];
+      temp3 = (!mask_[i]);
+      frame->data[i] = frame->data[i] & (~mask_[i]);
+      temp4 = frame->data[i];
+      temp5 = frame->data[i] | temp;
+      frame->data[i] = frame->data[i] | temp;
+    }
   }
 };
 

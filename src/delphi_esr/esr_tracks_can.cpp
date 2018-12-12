@@ -46,9 +46,11 @@ void CANInterfaceESR::frameCallback(const can::Frame &f) {
   }
 
   if (f.id >= ESR_TRACK_START && f.id <= ESR_TRACK_END) {
-    // std::cout << f.id;
     parseTrack(f);
-
+    aggregateTracks(f);
+  }
+  if (f.id == ESR_TRACK_EXTRAS) {
+    parseTrackExtras(f);
     aggregateTracks(f);
   }
   if (f.id == ESR_VEHICLE_INFO_1) {
@@ -68,7 +70,6 @@ void CANInterfaceESR::parseVehicleInfo1(const can::Frame &f) {
   int track_id, status;
   float speed, yaw_rate;
 
-  track_id = f.id - ESR_TRACK_START;
   ESR_VEHICLE_SPEED.parseValue(f, &speed);
   ESR_VEHICLE_YAW_RATE.parseValue(f, &yaw_rate);
 
@@ -118,6 +119,88 @@ void CANInterfaceESR::parseTrack(const can::Frame &f) {
   }
 };
 
+void CANInterfaceESR::parseTrackExtras(const can::Frame &f) {
+  int track_id, track_group;
+  float amplitude;
+  bool moving, movable_slow, movable_fast;
+
+  ESR_TRACK_EXTRAS_GROUP.parseValue(f, &track_group);
+  if (track_group < (ESR_MAX_TRACK_EXTRAS_NUMBER - 1)) {
+    ESR_TRACK_EXTRAS_AMPLITUDE_1.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_1.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_1.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_1.parseValue(f, &movable_fast);
+    track_id = 0 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_2.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_2.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_2.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_2.parseValue(f, &movable_fast);
+    track_id = 1 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_3.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_3.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_3.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_3.parseValue(f, &movable_fast);
+    track_id = 2 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_4.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_4.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_4.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_4.parseValue(f, &movable_fast);
+    track_id = 3 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_5.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_5.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_5.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_5.parseValue(f, &movable_fast);
+    track_id = 4 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_6.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_6.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_6.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_6.parseValue(f, &movable_fast);
+    track_id = 5 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+    ESR_TRACK_EXTRAS_AMPLITUDE_7.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_7.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_7.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_7.parseValue(f, &movable_fast);
+    track_id = 6 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+
+  } else {
+    ESR_TRACK_EXTRAS_AMPLITUDE_1.parseValue(f, &amplitude);
+    ESR_TRACK_EXTRAS_MOVING_1.parseValue(f, &moving);
+    ESR_TRACK_EXTRAS_MOVABLE_SLOW_1.parseValue(f, &movable_slow);
+    ESR_TRACK_EXTRAS_MOVABLE_FAST_1.parseValue(f, &movable_fast);
+    track_id = 0 + track_group * 7;
+    tracks_msg_.tracks[track_id].amplitude = amplitude;
+    tracks_msg_.tracks[track_id].is_movable =
+        moving * 100 + movable_slow * 10 + movable_fast;
+  }
+};
+
 void CANInterfaceESR::aggregateTracks(const can::Frame &f) {
   int track_id;
   bool to_publish = false;
@@ -127,10 +210,20 @@ void CANInterfaceESR::aggregateTracks(const can::Frame &f) {
     tracks_msg_.header.stamp = ros::Time::now();
     first_track_arrived_ = true;
     track_count_ = 1;
-  } else {
+    track_extras_count_ = 0;
+    ROS_INFO("Arrived First: %d, %d, %d",track_id, track_extras_count_,track_count_);
+  } else if (track_id < ESR_MAX_TRACK_NUMBER) {
     track_count_ += 1;
+    ROS_INFO("Arrived track, Counted tracks: %d, %d, %d",track_id, track_extras_count_,track_count_);
   }
-  if (track_count_ == ESR_MAX_TRACK_NUMBER) {
+
+  if (f.id == ESR_TRACK_EXTRAS) {
+    track_extras_count_++;
+    ROS_INFO("Counted extras: %d, %d, %d",track_id,track_extras_count_,track_count_);
+  }
+
+  if (track_count_ == ESR_MAX_TRACK_NUMBER &&
+      track_extras_count_ == ESR_MAX_TRACK_EXTRAS_NUMBER) {
     to_publish = true;
     track_array_topic_.publish(tracks_msg_);
   }
