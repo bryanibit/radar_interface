@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(radar_interface)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -112,7 +112,7 @@ catkin_package(
   radar_visualization
   esr_tracks_can
   srr2_targets_can
-  srr2_tracks_eth
+#  srr2_tracks_eth TODO or not to do because Dlephi SRR2 over ethernet is most likely useless
   vehicle_to_srr2
   vehicle_to_esr
  CATKIN_DEPENDS 
@@ -281,6 +281,7 @@ target_link_libraries(esr_tracks_can_node
   can_tools
 )
 
+
 add_library(srr2_targets_can
   # include/radar_interface/delphi_srr2/srr2_targets_can.h
   src/delphi_srr2/srr2_targets_can.cpp
@@ -301,12 +302,12 @@ target_link_libraries(srr2_targets_can_node
   srr2_targets_can
 )
 
-add_executable(srr2_tracks_eth
-  # include/radar_interface/delphi_srr2/srr2_tracks_eth.h
+
+add_executable(srr2_tracks_eth_node
   src/delphi_srr2/srr2_tracks_eth_node.cpp
 )
-add_dependencies(srr2_tracks_eth ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(srr2_tracks_eth
+add_dependencies(srr2_tracks_eth_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(srr2_tracks_eth_node
   ${catkin_LIBRARIES}
   tcp_interface
   radar_visualization
@@ -322,7 +323,6 @@ target_link_libraries(vehicle_to_srr2_node
 )
 
 add_library(vehicle_to_srr2
-  # include/radar_interface/delphi_srr2/vehicle_to_srr2.h
   src/delphi_srr2/vehicle_to_srr2.cpp
 )
 add_dependencies(vehicle_to_srr2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -378,3 +378,12 @@ target_link_libraries(targets_to_markers_node
   ${catkin_LIBRARIES}
   radar_visualization
 )
+
+# Install library
+install(TARGETS radar_visualization
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+
