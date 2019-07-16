@@ -20,6 +20,7 @@
         <remap from="/radar_tracks" to="/$(arg esr_name)/tracks" />
 </node>  
 
-<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 -0.38 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>;
+<!--<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 -0.38 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>-->
+<node pkg="tf" type="static_transform_publisher" name="base_link_esr" args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link $(arg esr_name) 40"/>;
 
 </launch>

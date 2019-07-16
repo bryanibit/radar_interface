@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/delphi_srr2/vehicle_to_srr2.h"
 
 VehicleToSRR2::VehicleToSRR2(ros::NodeHandle *nh, ros::NodeHandle *nh_param,
@@ -30,12 +50,12 @@ void VehicleToSRR2::twistCallback(const geometry_msgs::Twist::ConstPtr &msg) {
 
 void VehicleToSRR2::sendCanFrame(const ros::TimerEvent &event) {
 
-  bool always_true=true;
-  uint8_t speed_qf=3;
+  bool always_true = true;
+  uint8_t speed_qf = 3;
   frame_vel.id = VEH_VEL.MSG_ID;
   frame_yaw_rate.id = VEH_YAW_RATE.MSG_ID;
   float speed_abs = std::abs(twist_.linear.x);
-  
+
   can_tools::setValue(&frame_vel, speed_abs, VEH_VEL);
   can_tools::setValue(&frame_vel, always_true, VEH_VEL_UB);
   can_tools::setValue(&frame_vel, speed_qf, VEH_VEL_QF);
@@ -51,5 +71,4 @@ void VehicleToSRR2::sendCanFrame(const ros::TimerEvent &event) {
   //   ROS_ERROR("Failed to send message: %s.",
   //             can::tostring(frame_yaw_rate, true).c_str());
   // }
-  
 }

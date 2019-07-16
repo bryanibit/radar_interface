@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/can_tools.h"
 
 namespace can_tools {
@@ -24,8 +44,8 @@ CANParseInfo::CANParseInfo(uint8_t start_bit, uint8_t length, bool is_signed,
   std::cout << (int)end_byte_ << "," << (int)end_byte_shift_ << std::endl;
 
   sign_bit_mask_ = 1 << start_byte_bit;
-  complement_offset_ = -2*pow(2,length_-1);
-  complement_max_positive_=pow(2,length_-1)-1;
+  complement_offset_ = -2 * pow(2, length_ - 1);
+  complement_max_positive_ = pow(2, length_ - 1) - 1;
 
   for (size_t i = 0; i < 8; i++) {
     mask_[i] = 0x00;
@@ -58,4 +78,4 @@ CANParseInfo::CANParseInfo(uint8_t start_bit, uint8_t length, bool is_signed,
             << (int)start_byte_bit << "," << (int)end_byte_ << ","
             << (int)end_byte_shift_ << "," << std::endl;
 };
-}
+} // namespace can_tools

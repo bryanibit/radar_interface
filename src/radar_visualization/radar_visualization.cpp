@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/radar_visualization/radar_visualization.h"
 
 RadarMarkers::RadarMarkers() {
@@ -139,7 +159,7 @@ void RadarMarkers::updateTargetMarkers(
 
   for (size_t i = 0; i < marker_num_; i++) {
     if (target_array.targets[i].status > -1) {
-      
+
       marker_array_.markers[i].header.frame_id = frame_string;
       marker_array_.markers[i].id = i;
       marker_array_.markers[i].pose.position.x =

@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "geometry_msgs/TwistStamped.h"
 #include "radar_interface/can_tools.h"
 #include "socketcan_bridge/topic_to_socketcan.h"
@@ -63,7 +83,7 @@ can_tools::CANParseInfo VEH_YAW_RATE(11,      // start_bit
                                      0.0,     // offset
                                      -128,    // min
                                      127.9375 // max
-                                     );
+);
 can_tools::CANParseInfo VEH_YAW_RATE_VALID(31,    // start_bit
                                            1,     // length
                                            false, // is_signed
@@ -71,7 +91,7 @@ can_tools::CANParseInfo VEH_YAW_RATE_VALID(31,    // start_bit
                                            0.0,   // offset
                                            0,     // min
                                            1      // max
-                                           );
+);
 can_tools::CANParseInfo VEH_VEL(7,       // start_bit
                                 11,      // length
                                 false,   // is_signed
@@ -79,7 +99,7 @@ can_tools::CANParseInfo VEH_VEL(7,       // start_bit
                                 0.0,     // offset
                                 -128,    // min
                                 127.9375 // max
-                                );
+);
 can_tools::CANParseInfo VEH_VEL_DIR(12,    // start_bit
                                     1,     // length
                                     false, // is_signed
@@ -87,7 +107,7 @@ can_tools::CANParseInfo VEH_VEL_DIR(12,    // start_bit
                                     0.0,   // offset
                                     0,     // min
                                     1      // max
-                                    );
+);
 can_tools::CANParseInfo VEH_VEL_VALID(61,    // start_bit
                                       1,     // length
                                       false, // is_signed
@@ -95,7 +115,7 @@ can_tools::CANParseInfo VEH_VEL_VALID(61,    // start_bit
                                       0.0,   // offset
                                       0,     // min
                                       1      // max
-                                      );
+);
 can_tools::CANParseInfo MAX_TRACKS(53,    // start_bit
                                    6,     // length
                                    false, // is_signed
@@ -103,7 +123,7 @@ can_tools::CANParseInfo MAX_TRACKS(53,    // start_bit
                                    1,     // offset
                                    1,     // min
                                    64     // max
-                                   );
+);
 can_tools::CANParseInfo TO_RADIATE(55,    // start_bit
                                    1,     // length
                                    false, // is_signed
@@ -111,7 +131,7 @@ can_tools::CANParseInfo TO_RADIATE(55,    // start_bit
                                    0,     // offset
                                    0,     // min
                                    1      // max
-                                   );
+);
 can_tools::CANParseInfo GROUPING_MODE(59,    // start_bit
                                       2,     // length
                                       false, // is_signed
@@ -119,7 +139,7 @@ can_tools::CANParseInfo GROUPING_MODE(59,    // start_bit
                                       0,     // offset
                                       0,     // min
                                       3      // max
-                                      );
+);
 
 class VehicleToESR : public socketcan_bridge::TopicToSocketCAN {
 public:

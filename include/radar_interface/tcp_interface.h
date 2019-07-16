@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef TCP_INTERFACE_H
 #define TCP_INTERFACE_H
 
@@ -58,9 +78,8 @@ public:
   };
 
   template <typename T>
-  void parse_array(T *array, const unsigned char *msg,
-                            unsigned int offset, unsigned int element_size,
-                            unsigned int array_size) {
+  void parse_array(T *array, const unsigned char *msg, unsigned int offset,
+                   unsigned int element_size, unsigned int array_size) {
     T retVal = 0;
     for (int i = 0; i < array_size; i++) {
       for (int j = element_size; j > 0; j--) {

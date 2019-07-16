@@ -1,13 +1,34 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/delphi_srr2/srr2_targets_can.h"
 #include <can_msgs/Frame.h>
 #include <socketcan_interface/string.h>
 #include <string>
 
 namespace radar_interface {
-CANInterfaceSRR2::CANInterfaceSRR2(
-    ros::NodeHandle *nh, ros::NodeHandle *nh_param,
-    can::DriverInterfaceSharedPtr driver, std::string radar_name,
-    int left_right_both) {
+CANInterfaceSRR2::CANInterfaceSRR2(ros::NodeHandle *nh,
+                                   ros::NodeHandle *nh_param,
+                                   can::DriverInterfaceSharedPtr driver,
+                                   std::string radar_name,
+                                   int left_right_both) {
 
   use_left_ = left_right_both == SRR2_LEFT || left_right_both == SRR2_BOTH;
   use_right_ = left_right_both == SRR2_RIGHT || left_right_both == SRR2_BOTH;
@@ -41,6 +62,12 @@ CANInterfaceSRR2::CANInterfaceSRR2(
   }
   driver_ = driver;
 
+  // timestamp management
+  nh_param->param<bool>("use_dsp_timestamps", use_dsp_timestamps_, bool(false));
+  std::cout << "Uses DSP timestamps: " << use_dsp_timestamps_ << ".\n";
+  first_timestamp_received_left_ = false;
+  first_timestamp_received_right_ = false;
+
   // register handler for frames and state changes.
   frame_listener_ =
       driver_->createMsgListener(can::CommInterface::FrameDelegate(
@@ -69,6 +96,42 @@ void CANInterfaceSRR2::frameCallback(const can::Frame &f) {
       ROS_WARN(
           "Received frame is error"); //: %s", can::tostring(f, true).c_str());
     }
+  }
+
+  if (use_dsp_timestamps_ && use_left_ && f.id == SRR2_LEFT_STATUS1 &&
+      first_timestamp_received_left_) {
+
+    double old_timestamp = timestamp_left_;
+    SRR2_TIMESTAMP.parseValue(f, &timestamp_left_);
+    double timestamp_delta = timestamp_left_ - old_timestamp;
+    if (timestamp_delta < 0.0) {
+      timestamp_delta += 65.536;
+    }
+    absolute_timestamp_left_ += timestamp_delta;
+    std::cout << "1    " << timestamp_delta << "\n";
+  } else if (use_dsp_timestamps_ && use_left_ && f.id == SRR2_LEFT_STATUS1 &&
+             ~first_timestamp_received_left_) {
+    first_timestamp_received_left_ = true;
+
+    SRR2_TIMESTAMP.parseValue(f, &timestamp_left_);
+    absolute_timestamp_left_ = 0.0;
+
+    std::cout << "2    " << timestamp_left_ << "\n";
+  }
+  if (use_dsp_timestamps_ && use_right_ && f.id == SRR2_RIGHT_STATUS1 &&
+      first_timestamp_received_right_) {
+    double old_timestamp = timestamp_right_;
+    SRR2_TIMESTAMP.parseValue(f, &timestamp_right_);
+    double timestamp_delta = timestamp_right_ - old_timestamp;
+    if (timestamp_delta < 0.0) {
+      timestamp_delta += 65.536;
+    }
+    absolute_timestamp_right_ += timestamp_delta;
+  } else if (use_dsp_timestamps_ && use_right_ && f.id == SRR2_RIGHT_STATUS1 &&
+             ~first_timestamp_received_right_) {
+    SRR2_TIMESTAMP.parseValue(f, &timestamp_right_);
+    absolute_timestamp_right_ = 0.0;
+    first_timestamp_received_right_ = true;
   }
 
   if (use_left_ && f.id >= SRR2_LEFT_TARGET_START &&
@@ -140,7 +203,11 @@ void CANInterfaceSRR2::aggregateTargets(const can::Frame &f, bool is_left) {
   if (is_left) {
     target_id = f.id - SRR2_LEFT_TARGET_START;
     if (target_id == 0) {
-      targets_msg_left_.header.stamp = ros::Time::now();
+      if (use_dsp_timestamps_) {
+        targets_msg_left_.header.stamp = ros::Time(absolute_timestamp_left_);
+      } else {
+        targets_msg_left_.header.stamp = ros::Time::now();
+      }
       first_target_arrived_left_ = true;
       target_count_left_ = 1;
     } else {
@@ -153,7 +220,11 @@ void CANInterfaceSRR2::aggregateTargets(const can::Frame &f, bool is_left) {
   } else {
     target_id = f.id - SRR2_RIGHT_TARGET_START;
     if (target_id == 0) {
-      targets_msg_right_.header.stamp = ros::Time::now();
+      if (use_dsp_timestamps_) {
+        targets_msg_right_.header.stamp = ros::Time(absolute_timestamp_right_);
+      } else {
+        targets_msg_right_.header.stamp = ros::Time::now();
+      }
       first_target_arrived_right_ = true;
       target_count_right_ = 1;
     } else {

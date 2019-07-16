@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/delphi_esr/esr_tracks_can.h"
 #include <can_msgs/Frame.h>
 #include <socketcan_interface/string.h>
@@ -211,15 +231,18 @@ void CANInterfaceESR::aggregateTracks(const can::Frame &f) {
     first_track_arrived_ = true;
     track_count_ = 1;
     track_extras_count_ = 0;
-    ROS_INFO("Arrived First: %d, %d, %d",track_id, track_extras_count_,track_count_);
+    ROS_INFO("Arrived First: %d, %d, %d", track_id, track_extras_count_,
+             track_count_);
   } else if (track_id < ESR_MAX_TRACK_NUMBER) {
     track_count_ += 1;
-    ROS_INFO("Arrived track, Counted tracks: %d, %d, %d",track_id, track_extras_count_,track_count_);
+    ROS_INFO("Arrived track, Counted tracks: %d, %d, %d", track_id,
+             track_extras_count_, track_count_);
   }
 
   if (f.id == ESR_TRACK_EXTRAS) {
     track_extras_count_++;
-    ROS_INFO("Counted extras: %d, %d, %d",track_id,track_extras_count_,track_count_);
+    ROS_INFO("Counted extras: %d, %d, %d", track_id, track_extras_count_,
+             track_count_);
   }
 
   if (track_count_ == ESR_MAX_TRACK_NUMBER &&

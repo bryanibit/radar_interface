@@ -1,3 +1,23 @@
+/**
+ *  This file is a part of radar_interface.
+ *
+ *  Copyright (C) 2018 Juraj Persic, University of Zagreb Faculty of Electrical
+ Engineering and Computing
+
+ *  radar_interface is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "radar_interface/delphi_srr2/srr2_tracks_eth.h"
 /**
  * This tutorial demonstrates simple sending of messages over the ROS system.
@@ -48,7 +68,7 @@ int main(int argc, char *argv[]) {
   radar_interface::AlignmentInfoSRR2 alignment_info_msg;
 
   RadarMarkers radar_markers;
-  radar_markers.marker_num_=SRR2_MAX_TRCK_NUM;
+  radar_markers.marker_num_ = SRR2_MAX_TRCK_NUM;
   radar_markers.marker_namespace_ = name;
   radar_markers.initializePublisher(&n);
 
@@ -140,11 +160,13 @@ int main(int argc, char *argv[]) {
       tcp_interface.parse_value(&is_movable, xcpMsgBuf, SRR2_TRCK_OFFSET + SRR2_TRCK_STATIONARY_OFFSET + SRR2_TRCK_SIZE*i, SRR2_TRCK_STATIONARY_SIZE);
         // clang-format on
         // if (track_x_pos != 0) {
-        //   std::cout << track_x_pos << "," << track_x_vel << "," << track_x_acc
+        //   std::cout << track_x_pos << "," << track_x_vel << "," <<
+        //   track_x_acc
         //             << "," << track_y_pos << "," << track_y_vel << ","
         //             << track_y_acc << std::endl;
         //   std::cout << (signed int)track_x_pos << "," << track_x_vel << ","
-        //             << track_x_acc << "," << track_y_pos << "," << track_y_vel
+        //             << track_x_acc << "," << track_y_pos << "," <<
+        //             track_y_vel
         //             << "," << track_y_acc << std::endl;
         // }
         tracks_msg.tracks[i].id = i;
