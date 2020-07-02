@@ -27,6 +27,8 @@
 // #include <type_traits>
 #include <bitset>
 #include <limits>
+#include <iostream>
+#include <cmath>
 
 namespace can_tools {
 
