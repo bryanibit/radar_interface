@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
   nh_param.param<std::string>("left_right_both", left_right_both, "both");
 
   can::ThreadedSocketCANInterfaceSharedPtr driver =
-      std::make_shared<can::ThreadedSocketCANInterface>();
+      boost::make_shared<can::ThreadedSocketCANInterface>();
 
   if (!driver->init(can_device,
                     0)) // initialize device at can_device, 0 for no loopback.

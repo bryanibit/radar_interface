@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   // boost::shared_ptr<can::ThreadedSocketCANInterface> driver =
   // boost::make_shared<can::ThreadedSocketCANInterface> ();
   can::ThreadedSocketCANInterfaceSharedPtr driver =
-      std::make_shared<can::ThreadedSocketCANInterface>();
+      boost::make_shared<can::ThreadedSocketCANInterface>();
 
   if (!driver->init(can_device,
                     0)) // initialize device at can_device, 0 for no loopback.
