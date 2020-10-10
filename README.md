@@ -1,3 +1,7 @@
+# Origin of the project
+
+The project is forked from [bitbucket](https://bitbucket.org/unizg-fer-lamor/radar_interface.git).
+
 # How to setup Kvaser on Linux
 
 ## Method2
