@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS genmsg message_generation roscpp std_msgs visualization_msgs socketcan_interface socketcan_bridge)
+find_package(catkin REQUIRED COMPONENTS genmsg message_generation roscpp std_msgs visualization_msgs socketcan_interface socketcan_bridge rcs_msg_wrapper)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -120,6 +120,7 @@ catkin_package(
   message_generation 
   roscpp 
   std_msgs
+  rcs_msg_wrapper
 #  DEPENDS system_lib
 )
 include_directories(
@@ -378,6 +379,11 @@ add_dependencies(targets_to_markers_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${c
 target_link_libraries(targets_to_markers_node
   ${catkin_LIBRARIES}
   radar_visualization
+)
+
+add_executable(tf_ros_dwdx_node src/tf_dwdx/ros_dwdx2twist.cpp)
+target_link_libraries(tf_ros_dwdx_node
+  ${catkin_LIBRARIES}
 )
 
 # Install library

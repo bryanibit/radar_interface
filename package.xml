@@ -66,4 +66,9 @@
 <build_depend>socketcan_bridge</build_depend>
 <build_export_depend>socketcan_bridge</build_export_depend>
 <exec_depend>socketcan_bridge</exec_depend>
+
+<build_depend>rcs_msg_wrapper</build_depend>
+<build_export_depend>rcs_msg_wrapper</build_export_depend>
+<exec_depend>rcs_msg_wrapper</exec_depend>
+
 </package>
