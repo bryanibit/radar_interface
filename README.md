@@ -19,4 +19,9 @@ sudo ip link set up can0
 
 # Read and write (speed) esr via Kvaser
 
-After setting Kvaser can, the Kvaser **CAN** light should be turned on. And run `roslaunch radar_interface delphi_esr_can.launch` to access the data throught socketcan from esr.
+After setting Kvaser can, the Kvaser **CAN** light should be turned on. And then install `socketcan` on ROS:
+```sh
+sudo apt-get install ros-kinetic-socketcan-bridge
+sudo apt-get install ros-kinetic-socketcan-interface
+```
+And build the ROS package and run `roslaunch radar_interface delphi_esr_can.launch` to access the data throught socketcan from esr.
