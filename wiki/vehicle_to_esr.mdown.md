@@ -7,5 +7,5 @@ This node subsribes to *\vehicle_twist* topic of type *geometry_msgs/Twist* and 
 
 Can usage
 ```
-$ git clone https://bitbucket.org/unizg-fer-lamor/radar_interface.git/wiki
+$ git clone https://github.com/bryanibit/radar_interface.git/wiki
 ```
